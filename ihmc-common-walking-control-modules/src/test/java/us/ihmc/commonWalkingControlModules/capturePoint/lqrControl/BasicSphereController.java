@@ -40,11 +40,12 @@ public class BasicSphereController implements SphereControllerInterface
 
    private final List<ContactStateProvider> contactStateProviders = new ArrayList<>();
 
-   public BasicSphereController(SphereRobot sphereRobot, CoMTrajectoryProvider comTrajectoryProvider, YoGraphicsListRegistry yoGraphicsListRegistry)
+   public BasicSphereController(SphereRobot sphereRobot, CoMTrajectoryProvider dcmPlan, YoGraphicsListRegistry yoGraphicsListRegistry)
    {
       this.sphereRobot = sphereRobot;
+      this.dcmPlan = dcmPlan;
+
       externalForcePoint = sphereRobot.getScsRobot().getAllExternalForcePoints().get(0);
-      dcmPlan = comTrajectoryProvider;
 
       YoICPControlGains gains = new YoICPControlGains("", registry);
       gains.setKpOrthogonalToMotion(3.0);

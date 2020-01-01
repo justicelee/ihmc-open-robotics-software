@@ -29,13 +29,13 @@ public class LQRSphereController implements SphereControllerInterface
    private final CoMTrajectoryProvider dcmPlan;
    private final List<ContactStateProvider> contactStateProviders = new ArrayList<>();
 
-   public LQRSphereController(SphereRobot sphereRobot, CoMTrajectoryProvider comTrajectoryProvider, YoGraphicsListRegistry yoGraphicsListRegistry)
+   public LQRSphereController(SphereRobot sphereRobot, CoMTrajectoryProvider dcmPlan, YoGraphicsListRegistry yoGraphicsListRegistry)
    {
       this.scsRobot = sphereRobot.getScsRobot();
       this.sphereRobot = sphereRobot;
-      externalForcePoint = sphereRobot.getScsRobot().getAllExternalForcePoints().get(0);
+      this.dcmPlan = dcmPlan;
 
-      dcmPlan = comTrajectoryProvider;
+      externalForcePoint = sphereRobot.getScsRobot().getAllExternalForcePoints().get(0);
 
       sphereRobot.getScsRobot().setController(this);
 
