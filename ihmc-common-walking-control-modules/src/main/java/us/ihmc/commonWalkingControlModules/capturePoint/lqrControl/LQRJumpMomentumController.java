@@ -125,8 +125,8 @@ public class LQRJumpMomentumController
    final RecyclingArrayList<RecyclingArrayList<DenseMatrix64F>> gammas = new RecyclingArrayList<>(
          () -> new RecyclingArrayList<>(() -> new DenseMatrix64F(6, 1)));
 
-   final RecyclingArrayList<DenseMatrix64F> sigmas = new RecyclingArrayList<>(() -> new DenseMatrix64F(6, 1));
-   final RecyclingArrayList<DenseMatrix64F> phis = new RecyclingArrayList<>(() -> new DenseMatrix64F(6, 1));
+   final RecyclingArrayList<DenseMatrix64F> sigmas = new RecyclingArrayList<>(() -> new DenseMatrix64F(6, 6));
+   final RecyclingArrayList<DenseMatrix64F> phis = new RecyclingArrayList<>(() -> new DenseMatrix64F(6, 6));
 
    final RecyclingArrayList<Trajectory3D> relativeVRPTrajectories = new RecyclingArrayList<>(() -> new Trajectory3D(4));
    final RecyclingArrayList<SettableContactStateProvider> contactStateProviders = new RecyclingArrayList<>(SettableContactStateProvider::new);
