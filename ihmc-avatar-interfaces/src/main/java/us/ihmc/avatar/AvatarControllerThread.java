@@ -256,6 +256,7 @@ public class AvatarControllerThread implements AvatarControllerThreadInterface
       humanoidRobotContextData.setEstimatorRan(false);
    }
 
+   @Override
    public void run()
    {
       runController.set(humanoidRobotContextData.getEstimatorRan());
@@ -292,6 +293,7 @@ public class AvatarControllerThread implements AvatarControllerThreadInterface
       }
    }
 
+   @Override
    public YoVariableRegistry getYoVariableRegistry()
    {
       return registry;
@@ -312,16 +314,19 @@ public class AvatarControllerThread implements AvatarControllerThreadInterface
       robotController.addRobotController(controller);
    }
 
+   @Override
    public FullHumanoidRobotModel getFullRobotModel()
    {
       return controllerFullRobotModel;
    }
 
+   @Override
    public HumanoidRobotContextData getHumanoidRobotContextData()
    {
       return humanoidRobotContextData;
    }
 
+   @Override
    public JointDesiredOutputListBasics getDesiredJointDataHolder()
    {
       return humanoidRobotContextData.getJointDesiredOutputList();
