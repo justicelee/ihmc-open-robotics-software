@@ -13,13 +13,18 @@ import us.ihmc.pubsub.TopicDataType;
        */
 public class QuadrupedSteppingStateChangeMessage extends Packet<QuadrupedSteppingStateChangeMessage> implements Settable<QuadrupedSteppingStateChangeMessage>, EpsilonComparable<QuadrupedSteppingStateChangeMessage>
 {
+
    public static final byte STAND = (byte) 0;
+
    public static final byte STEP = (byte) 1;
+
    public static final byte SOLE_WAYPOINT = (byte) 2;
+
    /**
             * Specifies the controller's state prior to transition.
             */
    public byte initial_quadruped_stepping_state_enum_ = (byte) 255;
+
    /**
             * Specifies the state the controller has transitioned into.
             */
@@ -27,6 +32,9 @@ public class QuadrupedSteppingStateChangeMessage extends Packet<QuadrupedSteppin
 
    public QuadrupedSteppingStateChangeMessage()
    {
+
+
+
    }
 
    public QuadrupedSteppingStateChangeMessage(QuadrupedSteppingStateChangeMessage other)
@@ -37,11 +45,14 @@ public class QuadrupedSteppingStateChangeMessage extends Packet<QuadrupedSteppin
 
    public void set(QuadrupedSteppingStateChangeMessage other)
    {
+
       initial_quadruped_stepping_state_enum_ = other.initial_quadruped_stepping_state_enum_;
+
 
       end_quadruped_stepping_state_enum_ = other.end_quadruped_stepping_state_enum_;
 
    }
+
 
    /**
             * Specifies the controller's state prior to transition.
@@ -57,6 +68,7 @@ public class QuadrupedSteppingStateChangeMessage extends Packet<QuadrupedSteppin
    {
       return initial_quadruped_stepping_state_enum_;
    }
+
 
    /**
             * Specifies the state the controller has transitioned into.
@@ -91,7 +103,9 @@ public class QuadrupedSteppingStateChangeMessage extends Packet<QuadrupedSteppin
       if(other == null) return false;
       if(other == this) return true;
 
+
       if (!us.ihmc.idl.IDLTools.epsilonEqualsPrimitive(this.initial_quadruped_stepping_state_enum_, other.initial_quadruped_stepping_state_enum_, epsilon)) return false;
+
 
       if (!us.ihmc.idl.IDLTools.epsilonEqualsPrimitive(this.end_quadruped_stepping_state_enum_, other.end_quadruped_stepping_state_enum_, epsilon)) return false;
 
@@ -108,7 +122,9 @@ public class QuadrupedSteppingStateChangeMessage extends Packet<QuadrupedSteppin
 
       QuadrupedSteppingStateChangeMessage otherMyClass = (QuadrupedSteppingStateChangeMessage) other;
 
+
       if(this.initial_quadruped_stepping_state_enum_ != otherMyClass.initial_quadruped_stepping_state_enum_) return false;
+
 
       if(this.end_quadruped_stepping_state_enum_ != otherMyClass.end_quadruped_stepping_state_enum_) return false;
 
@@ -122,8 +138,10 @@ public class QuadrupedSteppingStateChangeMessage extends Packet<QuadrupedSteppin
       StringBuilder builder = new StringBuilder();
 
       builder.append("QuadrupedSteppingStateChangeMessage {");
+
       builder.append("initial_quadruped_stepping_state_enum=");
       builder.append(this.initial_quadruped_stepping_state_enum_);      builder.append(", ");
+
       builder.append("end_quadruped_stepping_state_enum=");
       builder.append(this.end_quadruped_stepping_state_enum_);
       builder.append("}");

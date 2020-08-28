@@ -15,11 +15,9 @@ import controller_msgs.msg.dds.RobotConfigurationData;
 import us.ihmc.avatar.drcRobot.DRCRobotModel;
 import us.ihmc.avatar.networkProcessor.kinematicsToolboxModule.KinematicsToolboxHelper;
 import us.ihmc.commonWalkingControlModules.highLevelHumanoidControl.factories.ContactableBodiesFactory;
-import us.ihmc.commonWalkingControlModules.highLevelHumanoidControl.factories.ControllerAPIDefinition;
 import us.ihmc.commons.thread.ThreadTools;
 import us.ihmc.communication.IHMCRealtimeROS2Publisher;
 import us.ihmc.communication.ROS2Tools;
-import us.ihmc.communication.ROS2Tools.ROS2TopicQualifier;
 import us.ihmc.communication.packets.PlanarRegionMessageConverter;
 import us.ihmc.euclid.geometry.ConvexPolygon2D;
 import us.ihmc.euclid.geometry.interfaces.Vertex2DSupplier;
@@ -80,20 +78,19 @@ public class BipedalSupportPlanarRegionPublisher implements CloseableAndDisposab
 
       ros2Node = ROS2Tools.createRealtimeRos2Node(pubSubImplementation, "supporting_planar_region_publisher");
 
-      ROS2Tools.createCallbackSubscription(ros2Node,
-                                           CapturabilityBasedStatus.class,
-                                           ControllerAPIDefinition.getPublisherTopicNameGenerator(robotName),
+      ROS2Tools.createCallbackSubscriptionTypeNamed(ros2Node,
+                                                    CapturabilityBasedStatus.class, ROS2Tools.getControllerOutputTopic(robotName),
                                            subscriber -> latestCapturabilityBasedStatusMessage.set(subscriber.takeNextData()));
-      ROS2Tools.createCallbackSubscription(ros2Node,
-                                           RobotConfigurationData.class,
-                                           ControllerAPIDefinition.getPublisherTopicNameGenerator(robotName),
+      ROS2Tools.createCallbackSubscriptionTypeNamed(ros2Node,
+                                                    RobotConfigurationData.class, ROS2Tools.getControllerOutputTopic(robotName),
                                            subscriber -> latestRobotConfigurationData.set(subscriber.takeNextData()));
-      regionPublisher = ROS2Tools.createPublisher(ros2Node,
-                                                  PlanarRegionsListMessage.class,
-                                                  REACommunicationProperties.subscriberCustomRegionsTopicNameGenerator);
-      ROS2Tools.createCallbackSubscription(ros2Node,
-                                           BipedalSupportPlanarRegionParametersMessage.class,
-                                           ROS2Tools.getTopicNameGenerator(robotName, ROS2Tools.BIPED_SUPPORT_REGION_PUBLISHER, ROS2TopicQualifier.INPUT),
+      regionPublisher = ROS2Tools.createPublisherTypeNamed(ros2Node,
+                                                           PlanarRegionsListMessage.class,
+                                                           REACommunicationProperties.subscriberCustomRegionsTopicName);
+      ROS2Tools.createCallbackSubscriptionTypeNamed(ros2Node,
+                                                    BipedalSupportPlanarRegionParametersMessage.class,
+                                                    ROS2Tools.BIPED_SUPPORT_REGION_PUBLISHER.withRobot(robotName)
+                                                              .withInput(),
                                            s -> latestParametersMessage.set(s.takeNextData()));
 
       BipedalSupportPlanarRegionParametersMessage defaultParameters = new BipedalSupportPlanarRegionParametersMessage();
@@ -215,7 +212,7 @@ public class BipedalSupportPlanarRegionPublisher implements CloseableAndDisposab
       ReferenceFrame leftSoleFrame = contactableFeet.get(RobotSide.LEFT).getSoleFrame();
       ReferenceFrame rightSoleFrame = contactableFeet.get(RobotSide.RIGHT).getSoleFrame();
       RigidBodyTransform relativeSoleTransform = leftSoleFrame.getTransformToDesiredFrame(rightSoleFrame);
-      RotationMatrixReadOnly relativeOrientation = relativeSoleTransform.getRotationMatrix();
+      RotationMatrixReadOnly relativeOrientation = relativeSoleTransform.getRotation();
 
       double rotationEpsilon = Math.toRadians(3.0);
       double translationEpsilon = 0.02;

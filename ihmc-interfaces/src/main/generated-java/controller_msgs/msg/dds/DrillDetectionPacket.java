@@ -8,14 +8,19 @@ import us.ihmc.pubsub.TopicDataType;
 
 public class DrillDetectionPacket extends Packet<DrillDetectionPacket> implements Settable<DrillDetectionPacket>, EpsilonComparable<DrillDetectionPacket>
 {
+
    /**
             * Unique ID used to identify this message, should preferably be consecutively increasing.
             */
    public long sequence_id_;
+
    public boolean is_drill_on_;
 
    public DrillDetectionPacket()
    {
+
+
+
    }
 
    public DrillDetectionPacket(DrillDetectionPacket other)
@@ -26,11 +31,14 @@ public class DrillDetectionPacket extends Packet<DrillDetectionPacket> implement
 
    public void set(DrillDetectionPacket other)
    {
+
       sequence_id_ = other.sequence_id_;
+
 
       is_drill_on_ = other.is_drill_on_;
 
    }
+
 
    /**
             * Unique ID used to identify this message, should preferably be consecutively increasing.
@@ -46,6 +54,7 @@ public class DrillDetectionPacket extends Packet<DrillDetectionPacket> implement
    {
       return sequence_id_;
    }
+
 
    public void setIsDrillOn(boolean is_drill_on)
    {
@@ -74,7 +83,9 @@ public class DrillDetectionPacket extends Packet<DrillDetectionPacket> implement
       if(other == null) return false;
       if(other == this) return true;
 
+
       if (!us.ihmc.idl.IDLTools.epsilonEqualsPrimitive(this.sequence_id_, other.sequence_id_, epsilon)) return false;
+
 
       if (!us.ihmc.idl.IDLTools.epsilonEqualsBoolean(this.is_drill_on_, other.is_drill_on_, epsilon)) return false;
 
@@ -91,7 +102,9 @@ public class DrillDetectionPacket extends Packet<DrillDetectionPacket> implement
 
       DrillDetectionPacket otherMyClass = (DrillDetectionPacket) other;
 
+
       if(this.sequence_id_ != otherMyClass.sequence_id_) return false;
+
 
       if(this.is_drill_on_ != otherMyClass.is_drill_on_) return false;
 
@@ -105,8 +118,10 @@ public class DrillDetectionPacket extends Packet<DrillDetectionPacket> implement
       StringBuilder builder = new StringBuilder();
 
       builder.append("DrillDetectionPacket {");
+
       builder.append("sequence_id=");
       builder.append(this.sequence_id_);      builder.append(", ");
+
       builder.append("is_drill_on=");
       builder.append(this.is_drill_on_);
       builder.append("}");

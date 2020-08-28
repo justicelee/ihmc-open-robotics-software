@@ -15,20 +15,30 @@ import us.ihmc.pubsub.TopicDataType;
        */
 public class PelvisTrajectoryMessage extends Packet<PelvisTrajectoryMessage> implements Settable<PelvisTrajectoryMessage>, EpsilonComparable<PelvisTrajectoryMessage>
 {
+
    /**
             * Unique ID used to identify this message, should preferably be consecutively increasing.
             */
    public long sequence_id_;
+
+   /**
+            * When the robot is walking, restrictions on upper-body motion may be applied.
+            * To by-pass the safety check and force the execution of this message, set this field to true.
+            */
+   public boolean force_execution_;
+
    /**
             * Execute this trajectory in user mode. User mode tries to achieve the desired regardless of the leg kinematics.
             */
    public boolean enable_user_pelvis_control_;
+
    /**
             * If enable_user_pelvis_control is true then enable_user_pelvis_control_during_walking
             * will keep the manager in user mode while walking.
             * If this is false the manager will switch back to controller mode when walking.
             */
    public boolean enable_user_pelvis_control_during_walking_;
+
    /**
             * The position/orientation trajectory information.
             */
@@ -36,7 +46,13 @@ public class PelvisTrajectoryMessage extends Packet<PelvisTrajectoryMessage> imp
 
    public PelvisTrajectoryMessage()
    {
+
+
+
+
+
       se3_trajectory_ = new controller_msgs.msg.dds.SE3TrajectoryMessage();
+
    }
 
    public PelvisTrajectoryMessage(PelvisTrajectoryMessage other)
@@ -47,14 +63,22 @@ public class PelvisTrajectoryMessage extends Packet<PelvisTrajectoryMessage> imp
 
    public void set(PelvisTrajectoryMessage other)
    {
+
       sequence_id_ = other.sequence_id_;
+
+
+      force_execution_ = other.force_execution_;
+
 
       enable_user_pelvis_control_ = other.enable_user_pelvis_control_;
 
+
       enable_user_pelvis_control_during_walking_ = other.enable_user_pelvis_control_during_walking_;
+
 
       controller_msgs.msg.dds.SE3TrajectoryMessagePubSubType.staticCopy(other.se3_trajectory_, se3_trajectory_);
    }
+
 
    /**
             * Unique ID used to identify this message, should preferably be consecutively increasing.
@@ -71,6 +95,25 @@ public class PelvisTrajectoryMessage extends Packet<PelvisTrajectoryMessage> imp
       return sequence_id_;
    }
 
+
+   /**
+            * When the robot is walking, restrictions on upper-body motion may be applied.
+            * To by-pass the safety check and force the execution of this message, set this field to true.
+            */
+   public void setForceExecution(boolean force_execution)
+   {
+      force_execution_ = force_execution;
+   }
+   /**
+            * When the robot is walking, restrictions on upper-body motion may be applied.
+            * To by-pass the safety check and force the execution of this message, set this field to true.
+            */
+   public boolean getForceExecution()
+   {
+      return force_execution_;
+   }
+
+
    /**
             * Execute this trajectory in user mode. User mode tries to achieve the desired regardless of the leg kinematics.
             */
@@ -85,6 +128,7 @@ public class PelvisTrajectoryMessage extends Packet<PelvisTrajectoryMessage> imp
    {
       return enable_user_pelvis_control_;
    }
+
 
    /**
             * If enable_user_pelvis_control is true then enable_user_pelvis_control_during_walking
@@ -104,6 +148,7 @@ public class PelvisTrajectoryMessage extends Packet<PelvisTrajectoryMessage> imp
    {
       return enable_user_pelvis_control_during_walking_;
    }
+
 
 
    /**
@@ -132,11 +177,18 @@ public class PelvisTrajectoryMessage extends Packet<PelvisTrajectoryMessage> imp
       if(other == null) return false;
       if(other == this) return true;
 
+
       if (!us.ihmc.idl.IDLTools.epsilonEqualsPrimitive(this.sequence_id_, other.sequence_id_, epsilon)) return false;
+
+
+      if (!us.ihmc.idl.IDLTools.epsilonEqualsBoolean(this.force_execution_, other.force_execution_, epsilon)) return false;
+
 
       if (!us.ihmc.idl.IDLTools.epsilonEqualsBoolean(this.enable_user_pelvis_control_, other.enable_user_pelvis_control_, epsilon)) return false;
 
+
       if (!us.ihmc.idl.IDLTools.epsilonEqualsBoolean(this.enable_user_pelvis_control_during_walking_, other.enable_user_pelvis_control_during_walking_, epsilon)) return false;
+
 
       if (!this.se3_trajectory_.epsilonEquals(other.se3_trajectory_, epsilon)) return false;
 
@@ -152,11 +204,18 @@ public class PelvisTrajectoryMessage extends Packet<PelvisTrajectoryMessage> imp
 
       PelvisTrajectoryMessage otherMyClass = (PelvisTrajectoryMessage) other;
 
+
       if(this.sequence_id_ != otherMyClass.sequence_id_) return false;
+
+
+      if(this.force_execution_ != otherMyClass.force_execution_) return false;
+
 
       if(this.enable_user_pelvis_control_ != otherMyClass.enable_user_pelvis_control_) return false;
 
+
       if(this.enable_user_pelvis_control_during_walking_ != otherMyClass.enable_user_pelvis_control_during_walking_) return false;
+
 
       if (!this.se3_trajectory_.equals(otherMyClass.se3_trajectory_)) return false;
 
@@ -169,12 +228,19 @@ public class PelvisTrajectoryMessage extends Packet<PelvisTrajectoryMessage> imp
       StringBuilder builder = new StringBuilder();
 
       builder.append("PelvisTrajectoryMessage {");
+
       builder.append("sequence_id=");
       builder.append(this.sequence_id_);      builder.append(", ");
+
+      builder.append("force_execution=");
+      builder.append(this.force_execution_);      builder.append(", ");
+
       builder.append("enable_user_pelvis_control=");
       builder.append(this.enable_user_pelvis_control_);      builder.append(", ");
+
       builder.append("enable_user_pelvis_control_during_walking=");
       builder.append(this.enable_user_pelvis_control_during_walking_);      builder.append(", ");
+
       builder.append("se3_trajectory=");
       builder.append(this.se3_trajectory_);
       builder.append("}");

@@ -12,35 +12,54 @@ import us.ihmc.pubsub.TopicDataType;
        */
 public class ExoStepStatusMessage extends Packet<ExoStepStatusMessage> implements Settable<ExoStepStatusMessage>, EpsilonComparable<ExoStepStatusMessage>
 {
+
    public static final byte FOOTSTEP_STATUS_STARTED = (byte) 0;
+
    public static final byte FOOTSTEP_STATUS_COMPLETED = (byte) 1;
+
    public static final byte ROBOT_SIDE_LEFT = (byte) 0;
+
    public static final byte ROBOT_SIDE_RIGHT = (byte) 1;
+
    /**
             * Unique ID used to identify this message, should preferably be consecutively increasing.
             */
    public long sequence_id_;
+
    /**
             * The current footstep status enum value.
             */
    public byte footstep_status_ = (byte) 255;
+
    /**
             * footstep_index starts at 0 and monotonically increases with each completed footstep in a given FootstepDataListMessage.
             */
    public int footstep_index_;
+
    /**
             * The robot side (left or right) that this footstep status correlates to.
             */
    public byte robot_side_ = (byte) 255;
+
    /**
             * Specifies the desired position of the foot sent to the controller as opposed to where the foot actually landed.
             */
    public double desired_step_length_;
+
    public double desired_step_height_;
+
    public double desired_step_pitch_;
 
    public ExoStepStatusMessage()
    {
+
+
+
+
+
+
+
+
    }
 
    public ExoStepStatusMessage(ExoStepStatusMessage other)
@@ -51,21 +70,29 @@ public class ExoStepStatusMessage extends Packet<ExoStepStatusMessage> implement
 
    public void set(ExoStepStatusMessage other)
    {
+
       sequence_id_ = other.sequence_id_;
+
 
       footstep_status_ = other.footstep_status_;
 
+
       footstep_index_ = other.footstep_index_;
+
 
       robot_side_ = other.robot_side_;
 
+
       desired_step_length_ = other.desired_step_length_;
 
+
       desired_step_height_ = other.desired_step_height_;
+
 
       desired_step_pitch_ = other.desired_step_pitch_;
 
    }
+
 
    /**
             * Unique ID used to identify this message, should preferably be consecutively increasing.
@@ -82,6 +109,7 @@ public class ExoStepStatusMessage extends Packet<ExoStepStatusMessage> implement
       return sequence_id_;
    }
 
+
    /**
             * The current footstep status enum value.
             */
@@ -96,6 +124,7 @@ public class ExoStepStatusMessage extends Packet<ExoStepStatusMessage> implement
    {
       return footstep_status_;
    }
+
 
    /**
             * footstep_index starts at 0 and monotonically increases with each completed footstep in a given FootstepDataListMessage.
@@ -112,6 +141,7 @@ public class ExoStepStatusMessage extends Packet<ExoStepStatusMessage> implement
       return footstep_index_;
    }
 
+
    /**
             * The robot side (left or right) that this footstep status correlates to.
             */
@@ -126,6 +156,7 @@ public class ExoStepStatusMessage extends Packet<ExoStepStatusMessage> implement
    {
       return robot_side_;
    }
+
 
    /**
             * Specifies the desired position of the foot sent to the controller as opposed to where the foot actually landed.
@@ -142,6 +173,7 @@ public class ExoStepStatusMessage extends Packet<ExoStepStatusMessage> implement
       return desired_step_length_;
    }
 
+
    public void setDesiredStepHeight(double desired_step_height)
    {
       desired_step_height_ = desired_step_height;
@@ -150,6 +182,7 @@ public class ExoStepStatusMessage extends Packet<ExoStepStatusMessage> implement
    {
       return desired_step_height_;
    }
+
 
    public void setDesiredStepPitch(double desired_step_pitch)
    {
@@ -178,17 +211,24 @@ public class ExoStepStatusMessage extends Packet<ExoStepStatusMessage> implement
       if(other == null) return false;
       if(other == this) return true;
 
+
       if (!us.ihmc.idl.IDLTools.epsilonEqualsPrimitive(this.sequence_id_, other.sequence_id_, epsilon)) return false;
+
 
       if (!us.ihmc.idl.IDLTools.epsilonEqualsPrimitive(this.footstep_status_, other.footstep_status_, epsilon)) return false;
 
+
       if (!us.ihmc.idl.IDLTools.epsilonEqualsPrimitive(this.footstep_index_, other.footstep_index_, epsilon)) return false;
+
 
       if (!us.ihmc.idl.IDLTools.epsilonEqualsPrimitive(this.robot_side_, other.robot_side_, epsilon)) return false;
 
+
       if (!us.ihmc.idl.IDLTools.epsilonEqualsPrimitive(this.desired_step_length_, other.desired_step_length_, epsilon)) return false;
 
+
       if (!us.ihmc.idl.IDLTools.epsilonEqualsPrimitive(this.desired_step_height_, other.desired_step_height_, epsilon)) return false;
+
 
       if (!us.ihmc.idl.IDLTools.epsilonEqualsPrimitive(this.desired_step_pitch_, other.desired_step_pitch_, epsilon)) return false;
 
@@ -205,17 +245,24 @@ public class ExoStepStatusMessage extends Packet<ExoStepStatusMessage> implement
 
       ExoStepStatusMessage otherMyClass = (ExoStepStatusMessage) other;
 
+
       if(this.sequence_id_ != otherMyClass.sequence_id_) return false;
+
 
       if(this.footstep_status_ != otherMyClass.footstep_status_) return false;
 
+
       if(this.footstep_index_ != otherMyClass.footstep_index_) return false;
+
 
       if(this.robot_side_ != otherMyClass.robot_side_) return false;
 
+
       if(this.desired_step_length_ != otherMyClass.desired_step_length_) return false;
 
+
       if(this.desired_step_height_ != otherMyClass.desired_step_height_) return false;
+
 
       if(this.desired_step_pitch_ != otherMyClass.desired_step_pitch_) return false;
 
@@ -229,18 +276,25 @@ public class ExoStepStatusMessage extends Packet<ExoStepStatusMessage> implement
       StringBuilder builder = new StringBuilder();
 
       builder.append("ExoStepStatusMessage {");
+
       builder.append("sequence_id=");
       builder.append(this.sequence_id_);      builder.append(", ");
+
       builder.append("footstep_status=");
       builder.append(this.footstep_status_);      builder.append(", ");
+
       builder.append("footstep_index=");
       builder.append(this.footstep_index_);      builder.append(", ");
+
       builder.append("robot_side=");
       builder.append(this.robot_side_);      builder.append(", ");
+
       builder.append("desired_step_length=");
       builder.append(this.desired_step_length_);      builder.append(", ");
+
       builder.append("desired_step_height=");
       builder.append(this.desired_step_height_);      builder.append(", ");
+
       builder.append("desired_step_pitch=");
       builder.append(this.desired_step_pitch_);
       builder.append("}");

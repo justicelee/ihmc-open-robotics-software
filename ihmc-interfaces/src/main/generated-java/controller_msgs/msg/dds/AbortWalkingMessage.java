@@ -12,6 +12,7 @@ import us.ihmc.pubsub.TopicDataType;
        */
 public class AbortWalkingMessage extends Packet<AbortWalkingMessage> implements Settable<AbortWalkingMessage>, EpsilonComparable<AbortWalkingMessage>
 {
+
    /**
             * Unique ID used to identify this message, should preferably be consecutively increasing.
             */
@@ -19,6 +20,8 @@ public class AbortWalkingMessage extends Packet<AbortWalkingMessage> implements 
 
    public AbortWalkingMessage()
    {
+
+
    }
 
    public AbortWalkingMessage(AbortWalkingMessage other)
@@ -29,9 +32,11 @@ public class AbortWalkingMessage extends Packet<AbortWalkingMessage> implements 
 
    public void set(AbortWalkingMessage other)
    {
+
       sequence_id_ = other.sequence_id_;
 
    }
+
 
    /**
             * Unique ID used to identify this message, should preferably be consecutively increasing.
@@ -66,7 +71,9 @@ public class AbortWalkingMessage extends Packet<AbortWalkingMessage> implements 
       if(other == null) return false;
       if(other == this) return true;
 
+
       if (!us.ihmc.idl.IDLTools.epsilonEqualsPrimitive(this.sequence_id_, other.sequence_id_, epsilon)) return false;
+
 
       return true;
    }
@@ -80,6 +87,7 @@ public class AbortWalkingMessage extends Packet<AbortWalkingMessage> implements 
 
       AbortWalkingMessage otherMyClass = (AbortWalkingMessage) other;
 
+
       if(this.sequence_id_ != otherMyClass.sequence_id_) return false;
 
 
@@ -92,6 +100,7 @@ public class AbortWalkingMessage extends Packet<AbortWalkingMessage> implements 
       StringBuilder builder = new StringBuilder();
 
       builder.append("AbortWalkingMessage {");
+
       builder.append("sequence_id=");
       builder.append(this.sequence_id_);
       builder.append("}");

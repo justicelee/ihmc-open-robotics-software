@@ -12,6 +12,7 @@ import us.ihmc.pubsub.TopicDataType;
        */
 public class ManipulationAbortedStatus extends Packet<ManipulationAbortedStatus> implements Settable<ManipulationAbortedStatus>, EpsilonComparable<ManipulationAbortedStatus>
 {
+
    /**
             * Unique ID used to identify this message, should preferably be consecutively increasing.
             */
@@ -19,6 +20,8 @@ public class ManipulationAbortedStatus extends Packet<ManipulationAbortedStatus>
 
    public ManipulationAbortedStatus()
    {
+
+
    }
 
    public ManipulationAbortedStatus(ManipulationAbortedStatus other)
@@ -29,9 +32,11 @@ public class ManipulationAbortedStatus extends Packet<ManipulationAbortedStatus>
 
    public void set(ManipulationAbortedStatus other)
    {
+
       sequence_id_ = other.sequence_id_;
 
    }
+
 
    /**
             * Unique ID used to identify this message, should preferably be consecutively increasing.
@@ -66,7 +71,9 @@ public class ManipulationAbortedStatus extends Packet<ManipulationAbortedStatus>
       if(other == null) return false;
       if(other == this) return true;
 
+
       if (!us.ihmc.idl.IDLTools.epsilonEqualsPrimitive(this.sequence_id_, other.sequence_id_, epsilon)) return false;
+
 
       return true;
    }
@@ -80,6 +87,7 @@ public class ManipulationAbortedStatus extends Packet<ManipulationAbortedStatus>
 
       ManipulationAbortedStatus otherMyClass = (ManipulationAbortedStatus) other;
 
+
       if(this.sequence_id_ != otherMyClass.sequence_id_) return false;
 
 
@@ -92,6 +100,7 @@ public class ManipulationAbortedStatus extends Packet<ManipulationAbortedStatus>
       StringBuilder builder = new StringBuilder();
 
       builder.append("ManipulationAbortedStatus {");
+
       builder.append("sequence_id=");
       builder.append(this.sequence_id_);
       builder.append("}");

@@ -7,7 +7,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import boofcv.struct.calib.IntrinsicParameters;
+import boofcv.struct.calib.CameraPinholeBrown;
 import controller_msgs.msg.dds.AdjustFootstepMessage;
 import controller_msgs.msg.dds.ArmDesiredAccelerationsMessage;
 import controller_msgs.msg.dds.ArmTrajectoryMessage;
@@ -37,8 +37,6 @@ import controller_msgs.msg.dds.FootLoadBearingMessage;
 import controller_msgs.msg.dds.FootTrajectoryMessage;
 import controller_msgs.msg.dds.FootstepDataListMessage;
 import controller_msgs.msg.dds.FootstepDataMessage;
-import controller_msgs.msg.dds.FootstepPathPlanPacket;
-import controller_msgs.msg.dds.FootstepPlanRequestPacket;
 import controller_msgs.msg.dds.FootstepStatusMessage;
 import controller_msgs.msg.dds.FrameInformation;
 import controller_msgs.msg.dds.GoHomeMessage;
@@ -123,6 +121,7 @@ import us.ihmc.euclid.referenceFrame.FramePoint3D;
 import us.ihmc.euclid.referenceFrame.FrameQuaternion;
 import us.ihmc.euclid.referenceFrame.ReferenceFrame;
 import us.ihmc.euclid.referenceFrame.exceptions.ReferenceFrameMismatchException;
+import us.ihmc.euclid.tools.EuclidHashCodeTools;
 import us.ihmc.euclid.transform.RigidBodyTransform;
 import us.ihmc.euclid.tuple2D.Point2D;
 import us.ihmc.euclid.tuple2D.Vector2D;
@@ -134,7 +133,6 @@ import us.ihmc.euclid.tuple3D.interfaces.Point3DReadOnly;
 import us.ihmc.euclid.tuple3D.interfaces.Tuple3DReadOnly;
 import us.ihmc.euclid.tuple3D.interfaces.Vector3DReadOnly;
 import us.ihmc.euclid.tuple4D.Quaternion;
-import us.ihmc.euclid.utils.NameBasedHashCodeTools;
 import us.ihmc.humanoidRobotics.communication.kinematicsPlanningToolboxAPI.KinematicsPlanningToolboxMessageFactory;
 import us.ihmc.humanoidRobotics.communication.packets.atlas.AtlasLowLevelControlMode;
 import us.ihmc.humanoidRobotics.communication.packets.bdi.BDIRobotBehavior;
@@ -149,16 +147,17 @@ import us.ihmc.humanoidRobotics.communication.packets.manipulation.AtlasElectric
 import us.ihmc.humanoidRobotics.communication.packets.manipulation.wholeBodyTrajectory.ConfigurationSpaceName;
 import us.ihmc.humanoidRobotics.communication.packets.manipulation.wholeBodyTrajectory.WholeBodyTrajectoryToolboxMessageTools;
 import us.ihmc.humanoidRobotics.communication.packets.sensing.StateEstimatorMode;
-import us.ihmc.humanoidRobotics.communication.packets.walking.FootstepPlanRequestType;
 import us.ihmc.humanoidRobotics.communication.packets.walking.FootstepStatus;
 import us.ihmc.humanoidRobotics.communication.packets.walking.HumanoidBodyPart;
 import us.ihmc.humanoidRobotics.communication.packets.walking.LoadBearingRequest;
 import us.ihmc.humanoidRobotics.footstep.Footstep;
+import us.ihmc.log.LogTools;
 import us.ihmc.mecano.multiBodySystem.interfaces.RigidBodyBasics;
 import us.ihmc.mecano.spatial.interfaces.SpatialVectorReadOnly;
 import us.ihmc.robotModels.FullHumanoidRobotModel;
 import us.ihmc.robotModels.FullRobotModelUtils;
 import us.ihmc.robotics.kinematics.TimeStampedTransform3D;
+import us.ihmc.robotics.math.trajectories.trajectorypoints.FrameSE3TrajectoryPoint;
 import us.ihmc.robotics.math.trajectories.trajectorypoints.OneDoFTrajectoryPoint;
 import us.ihmc.robotics.math.trajectories.trajectorypoints.interfaces.OneDoFTrajectoryPointBasics;
 import us.ihmc.robotics.math.trajectories.trajectorypoints.lists.OneDoFTrajectoryPointList;
@@ -465,11 +464,22 @@ public class HumanoidMessageTools
    {
       return createDoorLocationPacket(new Pose3D(doorTransformToWorld));
    }
+   
+   public static DoorLocationPacket createDoorLocationPacket(RigidBodyTransform doorTransformToWorld, byte doorType)
+   {
+      return createDoorLocationPacket(new Pose3D(doorTransformToWorld),doorType);
+   }
 
    public static DoorLocationPacket createDoorLocationPacket(Pose3D doorTransformToWorld)
    {
+      return createDoorLocationPacket(doorTransformToWorld,DoorLocationPacket.UNKNOWN_TYPE);
+   }
+   
+   public static DoorLocationPacket createDoorLocationPacket(Pose3D doorTransformToWorld, byte doorType)
+   {
       DoorLocationPacket message = new DoorLocationPacket();
       message.getDoorTransformToWorld().set(doorTransformToWorld);
+      message.setDetectedDoorType(doorType);
       return message;
    }
 
@@ -573,21 +583,6 @@ public class HumanoidMessageTools
       message.getExplorationRangeUpperLimits().add(explorationRangeUpperLimits);
       message.getExplorationRangeLowerLimits().add(explorationRangeLowerLimits);
 
-      return message;
-   }
-
-   public static FootstepPathPlanPacket createFootstepPathPlanPacket(boolean goalsValid, FootstepDataMessage start, List<FootstepDataMessage> originalGoals,
-                                                                     List<FootstepDataMessage> ADStarPathPlan, List<Boolean> footstepUnknown,
-                                                                     double subOptimality, double cost)
-   {
-      FootstepPathPlanPacket message = new FootstepPathPlanPacket();
-      message.setGoalsValid(goalsValid);
-      message.getStart().set(start);
-      MessageTools.copyData(originalGoals, message.getOriginalGoals());
-      MessageTools.copyData(ADStarPathPlan, message.getPathPlan());
-      footstepUnknown.stream().forEach(message.getFootstepUnknown()::add);
-      message.setSubOptimality(subOptimality);
-      message.setPathCost(cost);
       return message;
    }
 
@@ -1201,29 +1196,6 @@ public class HumanoidMessageTools
       return message;
    }
 
-   public static FootstepPlanRequestPacket createFootstepPlanRequestPacket(FootstepPlanRequestType requestType, FootstepDataMessage startFootstep,
-                                                                           double thetaStart, List<FootstepDataMessage> goals)
-   {
-      FootstepPlanRequestPacket message = new FootstepPlanRequestPacket();
-      message.setFootstepPlanRequestType(requestType.toByte());
-      message.getStartFootstep().set(startFootstep);
-      message.setThetaStart(thetaStart);
-      MessageTools.copyData(goals, message.getGoals());
-      return message;
-   }
-
-   public static FootstepPlanRequestPacket createFootstepPlanRequestPacket(FootstepPlanRequestType requestType, FootstepDataMessage startFootstep,
-                                                                           double thetaStart, List<FootstepDataMessage> goals, double maxSuboptimality)
-   {
-      FootstepPlanRequestPacket message = new FootstepPlanRequestPacket();
-      message.setFootstepPlanRequestType(requestType.toByte());
-      message.getStartFootstep().set(startFootstep);
-      message.setThetaStart(thetaStart);
-      MessageTools.copyData(goals, message.getGoals());
-      message.setMaxSubOptimality(maxSuboptimality);
-      return message;
-   }
-
    public static HandJointAnglePacket createHandJointAnglePacket(RobotSide robotSide, boolean connected, boolean calibrated, double[] jointAngles)
    {
       HandJointAnglePacket message = new HandJointAnglePacket();
@@ -1387,7 +1359,7 @@ public class HumanoidMessageTools
    }
 
    public static FisheyePacket createFisheyePacket(VideoSource videoSource, long timeStamp, byte[] data, Point3DReadOnly position,
-                                                   Orientation3DReadOnly orientation, IntrinsicParameters intrinsicParameters)
+                                                   Orientation3DReadOnly orientation, CameraPinholeBrown intrinsicParameters)
    {
       FisheyePacket message = new FisheyePacket();
       message.getVideoPacket().set(createVideoPacket(videoSource, timeStamp, data, position, orientation, intrinsicParameters));
@@ -1395,7 +1367,7 @@ public class HumanoidMessageTools
    }
 
    public static VideoPacket createVideoPacket(VideoSource videoSource, long timeStamp, byte[] data, Point3DReadOnly position,
-                                               Orientation3DReadOnly orientation, IntrinsicParameters intrinsicParameters)
+                                               Orientation3DReadOnly orientation, CameraPinholeBrown intrinsicParameters)
    {
       VideoPacket message = new VideoPacket();
       message.setVideoSource(videoSource.toByte());
@@ -1407,7 +1379,7 @@ public class HumanoidMessageTools
       return message;
    }
 
-   public static LocalVideoPacket createLocalVideoPacket(long timeStamp, BufferedImage image, IntrinsicParameters intrinsicParameters)
+   public static LocalVideoPacket createLocalVideoPacket(long timeStamp, BufferedImage image, CameraPinholeBrown intrinsicParameters)
    {
       LocalVideoPacket message = new LocalVideoPacket();
       message.timeStamp = timeStamp;
@@ -2011,19 +1983,57 @@ public class HumanoidMessageTools
       footstep.getFootstepPose().checkReferenceFrameMatch(ReferenceFrame.getWorldFrame());
       message.getLocation().set(location);
       message.getOrientation().set(orientation);
+
       packPredictedContactPoints(footstep.getPredictedContactPoints(), message);
       message.setTrajectoryType(footstep.getTrajectoryType().toByte());
       message.setSwingHeight(footstep.getSwingHeight());
       message.setSwingTrajectoryBlendDuration(footstep.getSwingTrajectoryBlendDuration());
 
-      if (footstep.getCustomPositionWaypoints().size() != 0)
+      if (!footstep.getCustomPositionWaypoints().isEmpty())
       {
-         for (int i = 0; i < footstep.getCustomPositionWaypoints().size(); i++)
+         if (footstep.getCustomPositionWaypoints().size() != 2)
          {
-            FramePoint3D framePoint = footstep.getCustomPositionWaypoints().get(i);
-            framePoint.checkReferenceFrameMatch(ReferenceFrame.getWorldFrame());
-            message.getCustomPositionWaypoints().add().set(framePoint);
+            LogTools.warn("Received footstep object without the correct number of waypoint positions. Should be 0 or 2, received: "
+                  + footstep.getCustomPositionWaypoints().size());
          }
+         else
+         {
+            for (int i = 0; i < 2; i++)
+            {
+               FramePoint3D framePoint = footstep.getCustomPositionWaypoints().get(i);
+               framePoint.checkReferenceFrameMatch(ReferenceFrame.getWorldFrame());
+               message.getCustomPositionWaypoints().add().set(framePoint);
+            }
+         }
+      }
+
+      if (!footstep.getCustomWaypointProportions().isEmpty())
+      {
+         if (footstep.getCustomWaypointProportions().size() != 2)
+         {
+            LogTools.warn("Received footstep object without the correct number of waypoint proportions. Should be 0 or 2, received: "
+                  + footstep.getCustomWaypointProportions().size());
+         }
+         else
+         {
+            message.getCustomWaypointProportions().clear();
+            for (int i = 0; i < 2; i++)
+            {
+               message.getCustomWaypointProportions().add(footstep.getCustomWaypointProportions().get(i).getValue());
+            }
+         }
+      }
+
+      for (int i = 0; i < footstep.getSwingTrajectory().size(); i++)
+      {
+         FrameSE3TrajectoryPoint swingTrajectoryPoint = footstep.getSwingTrajectory().get(i);
+         SE3TrajectoryPointMessage swingTrajectoryPointToSet = message.getSwingTrajectory().add();
+
+         swingTrajectoryPointToSet.getPosition().set(swingTrajectoryPoint.getPosition());
+         swingTrajectoryPointToSet.getOrientation().set(swingTrajectoryPoint.getOrientation());
+         swingTrajectoryPointToSet.getLinearVelocity().set(swingTrajectoryPoint.getLinearVelocity());
+         swingTrajectoryPointToSet.getAngularVelocity().set(swingTrajectoryPoint.getAngularVelocity());
+         swingTrajectoryPointToSet.setTime(swingTrajectoryPoint.getTime());
       }
 
       return message;
@@ -2211,7 +2221,7 @@ public class HumanoidMessageTools
          throw new RuntimeException("Need to provide robotSide for the bodyPart: " + bodyPart);
    }
 
-   public static IntrinsicParametersMessage toIntrinsicParametersMessage(IntrinsicParameters intrinsicParameters)
+   public static IntrinsicParametersMessage toIntrinsicParametersMessage(CameraPinholeBrown intrinsicParameters)
    {
       IntrinsicParametersMessage intrinsicParametersMessage = new IntrinsicParametersMessage();
       intrinsicParametersMessage.setWidth(intrinsicParameters.width);
@@ -2228,9 +2238,9 @@ public class HumanoidMessageTools
       return intrinsicParametersMessage;
    }
 
-   public static IntrinsicParameters toIntrinsicParameters(IntrinsicParametersMessage message)
+   public static CameraPinholeBrown toIntrinsicParameters(IntrinsicParametersMessage message)
    {
-      IntrinsicParameters intrinsicParameters = new IntrinsicParameters();
+      CameraPinholeBrown intrinsicParameters = new CameraPinholeBrown();
       intrinsicParameters.width = message.getWidth();
       intrinsicParameters.height = message.getHeight();
       intrinsicParameters.fx = message.getFx();
@@ -2386,7 +2396,7 @@ public class HumanoidMessageTools
    public static long getDataFrameIDConsideringDefault(FrameInformation frameInformation)
    {
       long dataId = frameInformation.getDataReferenceFrameId();
-      if (dataId == NameBasedHashCodeTools.DEFAULT_HASHCODE)
+      if (dataId == EuclidHashCodeTools.DEFAULT_HASHCODE)
       {
          dataId = frameInformation.getTrajectoryReferenceFrameId();
       }

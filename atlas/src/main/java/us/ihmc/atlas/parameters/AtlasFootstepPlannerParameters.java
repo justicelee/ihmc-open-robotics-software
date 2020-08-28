@@ -15,13 +15,9 @@ public class AtlasFootstepPlannerParameters extends StoredPropertySet implements
    {
       super(FootstepPlannerParameterKeys.keys, AtlasFootstepPlannerParameters.class, projectName, pathToResources);
 
-      setWiggleIntoConvexHullOfPlanarRegions(true);
-      setReturnBestEffortPlan(false);
       setCheckForBodyBoxCollisions(false);
       setCheckForPathCollisions(true);
-      setPerformHeuristicSearchPolicies(true);
-      setMinimumStepsForBestEffortPlan(3);
-      setCliffHeightToAvoid(0.05);
+      this.setCliffBaseHeightToAvoid(0.05);
       setMinimumDistanceFromCliffBottoms(0.1);
       setMaximumStepReach(0.5);
       setMinimumStepLength(-0.6);
@@ -34,8 +30,7 @@ public class AtlasFootstepPlannerParameters extends StoredPropertySet implements
       setMaximumYawWiggle(0.09);
       setMinimumFootholdPercent(0.99);
       setMinimumSurfaceInclineRadians(0.78539);
-      setMinXClearanceFromStance(0.22);
-      setMinYClearanceFromStance(0.22);
+      setMinClearanceFromStance(0.05);
       setWiggleInsideDelta(0.02);
       setMaximumStepZWhenSteppingUp(1.5);
       setMaximumStepReachWhenSteppingUp(0.5);

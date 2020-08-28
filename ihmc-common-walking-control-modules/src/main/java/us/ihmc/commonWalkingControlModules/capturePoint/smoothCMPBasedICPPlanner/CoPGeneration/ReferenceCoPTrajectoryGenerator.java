@@ -7,8 +7,8 @@ import java.util.function.Supplier;
 
 import us.ihmc.commonWalkingControlModules.bipedSupportPolygons.BipedSupportPolygons;
 import us.ihmc.commonWalkingControlModules.capturePoint.CoPPointPlanningParameters;
+import us.ihmc.commonWalkingControlModules.capturePoint.smoothCMPBasedICPPlanner.SmoothCMPBasedICPPlanner;
 import us.ihmc.commonWalkingControlModules.capturePoint.smoothCMPBasedICPPlanner.WalkingTrajectoryType;
-import us.ihmc.commonWalkingControlModules.configurations.CoPPlannerParameters;
 import us.ihmc.commonWalkingControlModules.configurations.CoPPointName;
 import us.ihmc.commonWalkingControlModules.configurations.CoPSplineType;
 import us.ihmc.commonWalkingControlModules.configurations.ICPPlannerParameters;
@@ -16,23 +16,13 @@ import us.ihmc.commons.Epsilons;
 import us.ihmc.commons.MathTools;
 import us.ihmc.commons.PrintTools;
 import us.ihmc.commons.lists.RecyclingArrayList;
+import us.ihmc.euclid.geometry.Bound;
 import us.ihmc.euclid.geometry.ConvexPolygon2D;
 import us.ihmc.euclid.geometry.interfaces.ConvexPolygon2DReadOnly;
 import us.ihmc.euclid.geometry.interfaces.Vertex2DSupplier;
 import us.ihmc.euclid.geometry.tools.EuclidGeometryPolygonTools;
-import us.ihmc.euclid.geometry.tools.EuclidGeometryPolygonTools.Bound;
-import us.ihmc.euclid.referenceFrame.FrameConvexPolygon2D;
-import us.ihmc.euclid.referenceFrame.FramePoint2D;
-import us.ihmc.euclid.referenceFrame.FramePoint3D;
-import us.ihmc.euclid.referenceFrame.FrameVector3D;
-import us.ihmc.euclid.referenceFrame.ReferenceFrame;
-import us.ihmc.euclid.referenceFrame.interfaces.FixedFramePoint3DBasics;
-import us.ihmc.euclid.referenceFrame.interfaces.FixedFrameVector2DBasics;
-import us.ihmc.euclid.referenceFrame.interfaces.FixedFrameVector3DBasics;
-import us.ihmc.euclid.referenceFrame.interfaces.FrameConvexPolygon2DReadOnly;
-import us.ihmc.euclid.referenceFrame.interfaces.FramePoint2DReadOnly;
-import us.ihmc.euclid.referenceFrame.interfaces.FramePoint3DReadOnly;
-import us.ihmc.euclid.referenceFrame.interfaces.FrameVector2DReadOnly;
+import us.ihmc.euclid.referenceFrame.*;
+import us.ihmc.euclid.referenceFrame.interfaces.*;
 import us.ihmc.euclid.transform.RigidBodyTransform;
 import us.ihmc.euclid.tuple2D.Vector2D;
 import us.ihmc.euclid.tuple2D.interfaces.Vector2DReadOnly;
@@ -47,14 +37,14 @@ import us.ihmc.robotics.math.trajectories.trajectorypoints.YoFrameEuclideanTraje
 import us.ihmc.robotics.referenceFrames.PoseReferenceFrame;
 import us.ihmc.robotics.robotSide.RobotSide;
 import us.ihmc.robotics.robotSide.SideDependentList;
+import us.ihmc.yoVariables.euclid.referenceFrame.YoFramePoint3D;
+import us.ihmc.yoVariables.euclid.referenceFrame.YoFrameVector2D;
 import us.ihmc.yoVariables.providers.DoubleProvider;
 import us.ihmc.yoVariables.providers.IntegerProvider;
-import us.ihmc.yoVariables.registry.YoVariableRegistry;
+import us.ihmc.yoVariables.registry.YoRegistry;
 import us.ihmc.yoVariables.variable.YoBoolean;
 import us.ihmc.yoVariables.variable.YoDouble;
 import us.ihmc.yoVariables.variable.YoEnum;
-import us.ihmc.yoVariables.variable.YoFramePoint3D;
-import us.ihmc.yoVariables.variable.YoFrameVector2D;
 import us.ihmc.yoVariables.variable.YoInteger;
 
 public class ReferenceCoPTrajectoryGenerator implements ReferenceCoPTrajectoryGeneratorInterface
@@ -70,7 +60,7 @@ public class ReferenceCoPTrajectoryGenerator implements ReferenceCoPTrajectoryGe
    private static final int numberOfSwingSegments = 3;
    private static final int numberOfTransferSegments = 2;
 
-   private final YoVariableRegistry registry = new YoVariableRegistry(getClass().getSimpleName());
+   private final YoRegistry registry = new YoRegistry(getClass().getSimpleName());
 
    // Waypoint planning parameters
    private double defaultSwingTime;
@@ -167,21 +157,22 @@ public class ReferenceCoPTrajectoryGenerator implements ReferenceCoPTrajectoryGe
                                           List<YoDouble> swingDurationShiftFractions, List<YoDouble> transferSplitFractions, List<YoDouble> weightDistributions,
                                           DoubleProvider finalTransferWeightDistribution, IntegerProvider numberOfUpcomingFootsteps,
                                           List<FootstepData> upcomingFootstepsData, SideDependentList<? extends ReferenceFrame> soleZUpFrames,
-                                          YoVariableRegistry parentRegistry)
+                                          YoRegistry parentRegistry)
    {
-      this(namePrefix, maxNumberOfFootstepsToConsider, bipedSupportPolygons, contactableFeet, numberFootstepsToConsider, swingDurations, transferDurations,
+      this(namePrefix, maxNumberOfFootstepsToConsider, bipedSupportPolygons.getFootPolygonsInSoleZUpFrame(), contactableFeet, numberFootstepsToConsider,
+           swingDurations, transferDurations,
            swingSplitFractions, swingDurationShiftFractions, transferSplitFractions, weightDistributions, finalTransferWeightDistribution, false,
            numberOfUpcomingFootsteps, upcomingFootstepsData, soleZUpFrames, parentRegistry);
 
    }
 
-   public ReferenceCoPTrajectoryGenerator(String namePrefix, int maxNumberOfFootstepsToConsider, BipedSupportPolygons bipedSupportPolygons,
+   public ReferenceCoPTrajectoryGenerator(String namePrefix, int maxNumberOfFootstepsToConsider, SideDependentList<? extends FrameConvexPolygon2DReadOnly> feetInSoleZUpFrames,
                                           SideDependentList<? extends ContactablePlaneBody> contactableFeet, YoInteger numberFootstepsToConsider,
                                           List<YoDouble> swingDurations, List<YoDouble> transferDurations, List<YoDouble> swingSplitFractions,
                                           List<YoDouble> swingDurationShiftFractions, List<YoDouble> transferSplitFractions,
                                           List<YoDouble> weightDistributions, DoubleProvider finalTransferWeightDistribution, boolean debug,
                                           IntegerProvider numberOfUpcomingFootsteps, List<FootstepData> upcomingFootstepsData,
-                                          SideDependentList<? extends ReferenceFrame> soleZUpFrames, YoVariableRegistry parentRegistry)
+                                          SideDependentList<? extends ReferenceFrame> soleZUpFrames, YoRegistry parentRegistry)
    {
       this.numberFootstepsToConsider = numberFootstepsToConsider;
       this.fullPrefix = namePrefix + "CoPTrajectoryGenerator";
@@ -246,7 +237,7 @@ public class ReferenceCoPTrajectoryGenerator implements ReferenceCoPTrajectoryGe
          ConvexPolygon2D defaultFootPolygon = new ConvexPolygon2D(Vertex2DSupplier.asVertex2DSupplier(contactableFeet.get(robotSide).getContactPoints2d()));
          defaultFootPolygons.put(robotSide, defaultFootPolygon);
 
-         supportFootPolygonsInSoleZUpFrames.put(robotSide, bipedSupportPolygons.getFootPolygonInSoleZUpFrame(robotSide));
+         supportFootPolygonsInSoleZUpFrames.put(robotSide, feetInSoleZUpFrames.get(robotSide));
       }
 
       for (int i = 0; i < maxNumberOfFootstepsToConsider; i++)
@@ -1043,10 +1034,12 @@ public class ReferenceCoPTrajectoryGenerator implements ReferenceCoPTrajectoryGe
    private double getSwingSegmentTimes(int segmentIndex, int footstepIndex)
    {
       double swingTime = swingDurations.get(footstepIndex).getDoubleValue();
-      if (swingTime <= 0.0 || !Double.isFinite(swingTime))
+      if (swingTime <= 0.0 || Double.isNaN(swingTime))
       {
          swingTime = defaultSwingTime;
       }
+      if (Double.isInfinite(swingTime))
+         swingTime = SmoothCMPBasedICPPlanner.SUFFICIENTLY_LARGE;
 
       double initialSegmentDuration =
             swingTime * swingDurationShiftFractions.get(footstepIndex).getDoubleValue() * swingSplitFractions.get(footstepIndex).getDoubleValue();
@@ -1142,7 +1135,7 @@ public class ReferenceCoPTrajectoryGenerator implements ReferenceCoPTrajectoryGe
             copPlannerParameters = copPointParametersMap.get(CoPPointName.TOE_COP);
          else
             copPlannerParameters = copPointParametersMap.get(exitCoPName);
-         
+
          framePointToPack.setIncludingFrame(supportFootPolygon.getCentroid(), 0.0);
          framePointToPack.add(supportFootPolygon.getMaxX() - exitCoPForwardSafetyMarginOnToes.getDoubleValue(),
                               copPlannerParameters.getCoPOffsets(supportSide).getY(), 0.0);
@@ -1162,7 +1155,7 @@ public class ReferenceCoPTrajectoryGenerator implements ReferenceCoPTrajectoryGe
             copPlannerParameters = copPointParametersMap.get(exitCoPName);
 
          framePointToPack.setIncludingFrame(supportFootPolygon.getCentroid(), 0.0);
-         framePointToPack.add(supportFootPolygon.getMaxX(),// - exitCoPForwardSafetyMarginOnToes.getDoubleValue(),
+         framePointToPack.add(supportFootPolygon.getMaxX() - exitCoPForwardSafetyMarginOnToes.getDoubleValue(),
                               copPlannerParameters.getCoPOffsets(supportSide).getY(), 0.0);
          constrainToPolygon(framePointToPack, supportFootPolygon, safeDistanceFromCoPToSupportEdgesWhenSteppingDown.getDoubleValue());
          framePointToPack.changeFrame(worldFrame);

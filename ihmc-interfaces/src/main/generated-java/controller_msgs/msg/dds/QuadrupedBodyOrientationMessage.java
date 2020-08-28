@@ -15,18 +15,22 @@ import us.ihmc.pubsub.TopicDataType;
        */
 public class QuadrupedBodyOrientationMessage extends Packet<QuadrupedBodyOrientationMessage> implements Settable<QuadrupedBodyOrientationMessage>, EpsilonComparable<QuadrupedBodyOrientationMessage>
 {
+
    /**
             * Unique ID used to identify this message, should preferably be consecutively increasing.
             */
    public long sequence_id_;
+
    /**
             * If true, the times are expressed in absolute time relative to the robot start
             */
    public boolean is_expressed_in_absolute_time_ = true;
+
    /**
             * Indicates if the given trajectory should be considered an "absolute" orientation or an "offset" orientation
             */
    public boolean is_an_offset_orientation_ = true;
+
    /**
             * The orientation trajectory information.
             */
@@ -34,7 +38,12 @@ public class QuadrupedBodyOrientationMessage extends Packet<QuadrupedBodyOrienta
 
    public QuadrupedBodyOrientationMessage()
    {
+
+
+
+
       so3_trajectory_ = new controller_msgs.msg.dds.SO3TrajectoryMessage();
+
    }
 
    public QuadrupedBodyOrientationMessage(QuadrupedBodyOrientationMessage other)
@@ -45,14 +54,19 @@ public class QuadrupedBodyOrientationMessage extends Packet<QuadrupedBodyOrienta
 
    public void set(QuadrupedBodyOrientationMessage other)
    {
+
       sequence_id_ = other.sequence_id_;
+
 
       is_expressed_in_absolute_time_ = other.is_expressed_in_absolute_time_;
 
+
       is_an_offset_orientation_ = other.is_an_offset_orientation_;
+
 
       controller_msgs.msg.dds.SO3TrajectoryMessagePubSubType.staticCopy(other.so3_trajectory_, so3_trajectory_);
    }
+
 
    /**
             * Unique ID used to identify this message, should preferably be consecutively increasing.
@@ -69,6 +83,7 @@ public class QuadrupedBodyOrientationMessage extends Packet<QuadrupedBodyOrienta
       return sequence_id_;
    }
 
+
    /**
             * If true, the times are expressed in absolute time relative to the robot start
             */
@@ -84,6 +99,7 @@ public class QuadrupedBodyOrientationMessage extends Packet<QuadrupedBodyOrienta
       return is_expressed_in_absolute_time_;
    }
 
+
    /**
             * Indicates if the given trajectory should be considered an "absolute" orientation or an "offset" orientation
             */
@@ -98,6 +114,7 @@ public class QuadrupedBodyOrientationMessage extends Packet<QuadrupedBodyOrienta
    {
       return is_an_offset_orientation_;
    }
+
 
 
    /**
@@ -126,11 +143,15 @@ public class QuadrupedBodyOrientationMessage extends Packet<QuadrupedBodyOrienta
       if(other == null) return false;
       if(other == this) return true;
 
+
       if (!us.ihmc.idl.IDLTools.epsilonEqualsPrimitive(this.sequence_id_, other.sequence_id_, epsilon)) return false;
+
 
       if (!us.ihmc.idl.IDLTools.epsilonEqualsBoolean(this.is_expressed_in_absolute_time_, other.is_expressed_in_absolute_time_, epsilon)) return false;
 
+
       if (!us.ihmc.idl.IDLTools.epsilonEqualsBoolean(this.is_an_offset_orientation_, other.is_an_offset_orientation_, epsilon)) return false;
+
 
       if (!this.so3_trajectory_.epsilonEquals(other.so3_trajectory_, epsilon)) return false;
 
@@ -146,11 +167,15 @@ public class QuadrupedBodyOrientationMessage extends Packet<QuadrupedBodyOrienta
 
       QuadrupedBodyOrientationMessage otherMyClass = (QuadrupedBodyOrientationMessage) other;
 
+
       if(this.sequence_id_ != otherMyClass.sequence_id_) return false;
+
 
       if(this.is_expressed_in_absolute_time_ != otherMyClass.is_expressed_in_absolute_time_) return false;
 
+
       if(this.is_an_offset_orientation_ != otherMyClass.is_an_offset_orientation_) return false;
+
 
       if (!this.so3_trajectory_.equals(otherMyClass.so3_trajectory_)) return false;
 
@@ -163,12 +188,16 @@ public class QuadrupedBodyOrientationMessage extends Packet<QuadrupedBodyOrienta
       StringBuilder builder = new StringBuilder();
 
       builder.append("QuadrupedBodyOrientationMessage {");
+
       builder.append("sequence_id=");
       builder.append(this.sequence_id_);      builder.append(", ");
+
       builder.append("is_expressed_in_absolute_time=");
       builder.append(this.is_expressed_in_absolute_time_);      builder.append(", ");
+
       builder.append("is_an_offset_orientation=");
       builder.append(this.is_an_offset_orientation_);      builder.append(", ");
+
       builder.append("so3_trajectory=");
       builder.append(this.so3_trajectory_);
       builder.append("}");

@@ -12,6 +12,7 @@ import us.ihmc.pubsub.TopicDataType;
        */
 public class REASensorDataFilterParametersMessage extends Packet<REASensorDataFilterParametersMessage> implements Settable<REASensorDataFilterParametersMessage>, EpsilonComparable<REASensorDataFilterParametersMessage>
 {
+
    /**
             * Lower-bound of the bounding box inside which sensor data will be processed into planar regions.
             * Note that the coordinates are relative to the sensor position and yaw:
@@ -22,6 +23,7 @@ public class REASensorDataFilterParametersMessage extends Packet<REASensorDataFi
             * If any of the lower-bound coordinates is NaN, the bounding box parameters will be ignored.
             */
    public us.ihmc.euclid.tuple3D.Point3D bounding_box_min_;
+
    /**
             * Upper-bound of the bounding box inside which sensor data will be processed into planar regions.
             * Note that the coordinates are relative to the sensor position and yaw:
@@ -32,12 +34,14 @@ public class REASensorDataFilterParametersMessage extends Packet<REASensorDataFi
             * If any of the upper-bound coordinates is NaN, the bounding box parameters will be ignored.
             */
    public us.ihmc.euclid.tuple3D.Point3D bounding_box_max_;
+
    /**
             * Defines a bounding sphere centered at the sensor within which sensor data will be processed into planar regions.
             * Sensor data collected outside this bounding sphere is still used to help estimating empty space inside it.
             * A negative value will be ignored.
             */
    public double sensor_max_range_;
+
    /**
             * Defines a bounding sphere centered at the sensor within which sensor data is to be ignored.
             * A negative value will be ignored.
@@ -46,8 +50,13 @@ public class REASensorDataFilterParametersMessage extends Packet<REASensorDataFi
 
    public REASensorDataFilterParametersMessage()
    {
+
       bounding_box_min_ = new us.ihmc.euclid.tuple3D.Point3D();
+
       bounding_box_max_ = new us.ihmc.euclid.tuple3D.Point3D();
+
+
+
    }
 
    public REASensorDataFilterParametersMessage(REASensorDataFilterParametersMessage other)
@@ -58,13 +67,18 @@ public class REASensorDataFilterParametersMessage extends Packet<REASensorDataFi
 
    public void set(REASensorDataFilterParametersMessage other)
    {
+
       geometry_msgs.msg.dds.PointPubSubType.staticCopy(other.bounding_box_min_, bounding_box_min_);
+
       geometry_msgs.msg.dds.PointPubSubType.staticCopy(other.bounding_box_max_, bounding_box_max_);
+
       sensor_max_range_ = other.sensor_max_range_;
+
 
       sensor_min_range_ = other.sensor_min_range_;
 
    }
+
 
 
    /**
@@ -82,6 +96,7 @@ public class REASensorDataFilterParametersMessage extends Packet<REASensorDataFi
    }
 
 
+
    /**
             * Upper-bound of the bounding box inside which sensor data will be processed into planar regions.
             * Note that the coordinates are relative to the sensor position and yaw:
@@ -95,6 +110,7 @@ public class REASensorDataFilterParametersMessage extends Packet<REASensorDataFi
    {
       return bounding_box_max_;
    }
+
 
    /**
             * Defines a bounding sphere centered at the sensor within which sensor data will be processed into planar regions.
@@ -114,6 +130,7 @@ public class REASensorDataFilterParametersMessage extends Packet<REASensorDataFi
    {
       return sensor_max_range_;
    }
+
 
    /**
             * Defines a bounding sphere centered at the sensor within which sensor data is to be ignored.
@@ -150,9 +167,13 @@ public class REASensorDataFilterParametersMessage extends Packet<REASensorDataFi
       if(other == null) return false;
       if(other == this) return true;
 
+
       if (!this.bounding_box_min_.epsilonEquals(other.bounding_box_min_, epsilon)) return false;
+
       if (!this.bounding_box_max_.epsilonEquals(other.bounding_box_max_, epsilon)) return false;
+
       if (!us.ihmc.idl.IDLTools.epsilonEqualsPrimitive(this.sensor_max_range_, other.sensor_max_range_, epsilon)) return false;
+
 
       if (!us.ihmc.idl.IDLTools.epsilonEqualsPrimitive(this.sensor_min_range_, other.sensor_min_range_, epsilon)) return false;
 
@@ -169,9 +190,13 @@ public class REASensorDataFilterParametersMessage extends Packet<REASensorDataFi
 
       REASensorDataFilterParametersMessage otherMyClass = (REASensorDataFilterParametersMessage) other;
 
+
       if (!this.bounding_box_min_.equals(otherMyClass.bounding_box_min_)) return false;
+
       if (!this.bounding_box_max_.equals(otherMyClass.bounding_box_max_)) return false;
+
       if(this.sensor_max_range_ != otherMyClass.sensor_max_range_) return false;
+
 
       if(this.sensor_min_range_ != otherMyClass.sensor_min_range_) return false;
 
@@ -185,12 +210,16 @@ public class REASensorDataFilterParametersMessage extends Packet<REASensorDataFi
       StringBuilder builder = new StringBuilder();
 
       builder.append("REASensorDataFilterParametersMessage {");
+
       builder.append("bounding_box_min=");
       builder.append(this.bounding_box_min_);      builder.append(", ");
+
       builder.append("bounding_box_max=");
       builder.append(this.bounding_box_max_);      builder.append(", ");
+
       builder.append("sensor_max_range=");
       builder.append(this.sensor_max_range_);      builder.append(", ");
+
       builder.append("sensor_min_range=");
       builder.append(this.sensor_min_range_);
       builder.append("}");

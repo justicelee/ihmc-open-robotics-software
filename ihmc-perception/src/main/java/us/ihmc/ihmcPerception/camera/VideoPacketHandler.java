@@ -1,6 +1,6 @@
 package us.ihmc.ihmcPerception.camera;
 
-import boofcv.struct.calib.IntrinsicParameters;
+import boofcv.struct.calib.CameraPinholeBrown;
 import controller_msgs.msg.dds.VideoPacket;
 import us.ihmc.commons.time.Stopwatch;
 import us.ihmc.communication.IHMCROS2Publisher;
@@ -23,7 +23,7 @@ public class VideoPacketHandler implements CompressedVideoHandler
 
    public VideoPacketHandler(Ros2Node ros2Node)
    {
-      publisher = ROS2Tools.createPublisher(ros2Node, VideoPacket.class, ROS2Tools.getDefaultTopicNameGenerator());
+      publisher = ROS2Tools.createPublisherTypeNamed(ros2Node, VideoPacket.class, ROS2Tools.IHMC_ROOT);
    }
 
    private Stopwatch timer;
@@ -34,7 +34,7 @@ public class VideoPacketHandler implements CompressedVideoHandler
 
    @Override
    public void onFrame(VideoSource videoSource, byte[] data, long timeStamp, Point3DReadOnly position, QuaternionReadOnly orientation,
-                       IntrinsicParameters intrinsicParameters)
+                       CameraPinholeBrown intrinsicParameters)
    {
       if (DEBUG)
       {

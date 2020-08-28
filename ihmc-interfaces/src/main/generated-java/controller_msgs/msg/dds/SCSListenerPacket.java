@@ -12,14 +12,19 @@ import us.ihmc.pubsub.TopicDataType;
        */
 public class SCSListenerPacket extends Packet<SCSListenerPacket> implements Settable<SCSListenerPacket>, EpsilonComparable<SCSListenerPacket>
 {
+
    /**
             * Unique ID used to identify this message, should preferably be consecutively increasing.
             */
    public long sequence_id_;
+
    public boolean is_stopped_ = true;
 
    public SCSListenerPacket()
    {
+
+
+
    }
 
    public SCSListenerPacket(SCSListenerPacket other)
@@ -30,11 +35,14 @@ public class SCSListenerPacket extends Packet<SCSListenerPacket> implements Sett
 
    public void set(SCSListenerPacket other)
    {
+
       sequence_id_ = other.sequence_id_;
+
 
       is_stopped_ = other.is_stopped_;
 
    }
+
 
    /**
             * Unique ID used to identify this message, should preferably be consecutively increasing.
@@ -50,6 +58,7 @@ public class SCSListenerPacket extends Packet<SCSListenerPacket> implements Sett
    {
       return sequence_id_;
    }
+
 
    public void setIsStopped(boolean is_stopped)
    {
@@ -78,7 +87,9 @@ public class SCSListenerPacket extends Packet<SCSListenerPacket> implements Sett
       if(other == null) return false;
       if(other == this) return true;
 
+
       if (!us.ihmc.idl.IDLTools.epsilonEqualsPrimitive(this.sequence_id_, other.sequence_id_, epsilon)) return false;
+
 
       if (!us.ihmc.idl.IDLTools.epsilonEqualsBoolean(this.is_stopped_, other.is_stopped_, epsilon)) return false;
 
@@ -95,7 +106,9 @@ public class SCSListenerPacket extends Packet<SCSListenerPacket> implements Sett
 
       SCSListenerPacket otherMyClass = (SCSListenerPacket) other;
 
+
       if(this.sequence_id_ != otherMyClass.sequence_id_) return false;
+
 
       if(this.is_stopped_ != otherMyClass.is_stopped_) return false;
 
@@ -109,8 +122,10 @@ public class SCSListenerPacket extends Packet<SCSListenerPacket> implements Sett
       StringBuilder builder = new StringBuilder();
 
       builder.append("SCSListenerPacket {");
+
       builder.append("sequence_id=");
       builder.append(this.sequence_id_);      builder.append(", ");
+
       builder.append("is_stopped=");
       builder.append(this.is_stopped_);
       builder.append("}");

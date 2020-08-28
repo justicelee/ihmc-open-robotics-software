@@ -11,6 +11,7 @@ import us.ihmc.avatar.drcRobot.DRCRobotModel;
 import us.ihmc.avatar.testTools.DRCSimulationTestHelper;
 import us.ihmc.commonWalkingControlModules.configurations.WalkingControllerParameters;
 import us.ihmc.commonWalkingControlModules.trajectories.SwingOverPlanarRegionsTrajectoryExpander;
+import us.ihmc.commonWalkingControlModules.trajectories.SwingOverPlanarRegionsStandaloneVisualizer;
 import us.ihmc.commons.PrintTools;
 import us.ihmc.commons.thread.ThreadTools;
 import us.ihmc.communication.packets.MessageTools;
@@ -25,14 +26,13 @@ import us.ihmc.graphicsDescription.yoGraphics.YoGraphicsListRegistry;
 import us.ihmc.humanoidRobotics.communication.packets.HumanoidMessageTools;
 import us.ihmc.robotics.geometry.PlanarRegionsList;
 import us.ihmc.robotics.robotSide.RobotSide;
-import us.ihmc.robotics.robotSide.SideDependentList;
 import us.ihmc.robotics.trajectories.TrajectoryType;
 import us.ihmc.simulationConstructionSetTools.bambooTools.BambooTools;
 import us.ihmc.simulationConstructionSetTools.util.environments.planarRegionEnvironments.LittleWallsWithIncreasingHeightPlanarRegionEnvironment;
 import us.ihmc.simulationconstructionset.util.simulationRunner.BlockingSimulationRunner.SimulationExceededMaximumTimeException;
 import us.ihmc.simulationconstructionset.util.simulationTesting.SimulationTestingParameters;
 import us.ihmc.wholeBodyController.RobotContactPointParameters;
-import us.ihmc.yoVariables.registry.YoVariableRegistry;
+import us.ihmc.yoVariables.registry.YoRegistry;
 
 public abstract class AvatarSwingOverPlanarRegionsTest implements MultiRobotTestInterface
 {
@@ -64,18 +64,19 @@ public abstract class AvatarSwingOverPlanarRegionsTest implements MultiRobotTest
       drcSimulationTestHelper.getSimulationConstructionSet().setCameraPosition(8.0, -8.0, 5.0);
       drcSimulationTestHelper.getSimulationConstructionSet().setCameraFix(1.5, 0.0, 0.8);
 
-      YoVariableRegistry registry = new YoVariableRegistry(getClass().getSimpleName());
+      YoRegistry registry = new YoRegistry(getClass().getSimpleName());
       YoGraphicsListRegistry yoGraphicsListRegistry = new YoGraphicsListRegistry();
       RobotContactPointParameters<RobotSide> contactPointParameters = robotModel.getContactPointParameters();
       WalkingControllerParameters walkingControllerParameters = robotModel.getWalkingControllerParameters();
 
-      AvatarSwingOverPlanarRegionsVisualizer swingOverPlanarRegionsVisualizer = null;
+      SwingOverPlanarRegionsStandaloneVisualizer swingOverPlanarRegionsVisualizer = null;
       SwingOverPlanarRegionsTrajectoryExpander swingOverPlanarRegionsTrajectoryExpander;
+      ConvexPolygon2D footPolygon = new ConvexPolygon2D(Vertex2DSupplier.asVertex2DSupplier(contactPointParameters.getFootContactPoints().get(RobotSide.LEFT)));
       if (LOCAL_MODE)
       {
-         swingOverPlanarRegionsVisualizer = new AvatarSwingOverPlanarRegionsVisualizer(drcSimulationTestHelper.getSimulationConstructionSet(), registry,
-                                                                                       yoGraphicsListRegistry, walkingControllerParameters,
-                                                                                       contactPointParameters);
+         swingOverPlanarRegionsVisualizer = new SwingOverPlanarRegionsStandaloneVisualizer(drcSimulationTestHelper.getSimulationConstructionSet(), registry,
+                                                                                           yoGraphicsListRegistry, walkingControllerParameters,
+                                                                                           footPolygon);
          swingOverPlanarRegionsTrajectoryExpander = swingOverPlanarRegionsVisualizer.getSwingOverPlanarRegionsTrajectoryExpander();
       }
       else
@@ -92,8 +93,8 @@ public abstract class AvatarSwingOverPlanarRegionsTest implements MultiRobotTest
       FramePose3D swingStartPose = new FramePose3D();
       FramePose3D swingEndPose = new FramePose3D();
 
-      stanceFootPose.setPosition(0.0, -stepWidth, 0.0);
-      swingEndPose.setPosition(0.0, stepWidth, 0.0);
+      stanceFootPose.getPosition().set(0.0, -stepWidth, 0.0);
+      swingEndPose.getPosition().set(0.0, stepWidth, 0.0);
 
       FootstepDataListMessage footsteps = HumanoidMessageTools.createFootstepDataListMessage(swingTime, transferTime);
       double simulationTime = transferTime * steps + 1.0;
@@ -108,7 +109,7 @@ public abstract class AvatarSwingOverPlanarRegionsTest implements MultiRobotTest
 
          swingStartPose.set(stanceFootPose);
          stanceFootPose.set(swingEndPose);
-         swingEndPose.setPosition(footstepX, footstepY, 0.0);
+         swingEndPose.getPosition().set(footstepX, footstepY, 0.0);
          double maxSpeedDimensionless = Double.NaN;
 
          if (LOCAL_MODE)

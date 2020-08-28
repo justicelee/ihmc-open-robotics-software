@@ -51,9 +51,9 @@ public class MultiSenseParamaterSetter implements PacketConsumer<MultisenseParam
       rosMainNode.attachServiceClient("multisense/set_parameters", multiSenseClient);
       ROS2Tools.createCallbackSubscription(ros2Node,
                                            MultisenseParameterPacket.class,
-                                           ROS2Tools.IHMC_ROS_TOPIC_PREFIX + "/multisense_parameter",
+                                           ROS2Tools.IHMC_TOPIC_PREFIX + "/multisense_parameter",
                                            s -> receivedPacket(s.takeNextData()));
-      publisher = ROS2Tools.createPublisher(ros2Node, MultisenseParameterPacket.class, ROS2Tools.IHMC_ROS_TOPIC_PREFIX + "/initial_multisense_parameter");
+      publisher = ROS2Tools.createPublisher(ros2Node, MultisenseParameterPacket.class, ROS2Tools.IHMC_TOPIC_PREFIX + "/initial_multisense_parameter");
    }
 
    public MultiSenseParamaterSetter(RosMainNode rosMainNode2)
@@ -121,8 +121,8 @@ public class MultiSenseParamaterSetter implements PacketConsumer<MultisenseParam
 
          Process process = builder.start();
          LogTools.info("Spindle speed shellout process started");
-         new ProcessStreamGobbler("ROS spindle speed shellout err", process.getErrorStream(), System.err).start();
-         new ProcessStreamGobbler("ROS spindle speed shellout out", process.getInputStream(), printStream).start();
+         new ProcessStreamGobbler("ROS spindle speed shellout err", process, process.getErrorStream(), System.err).start();
+         new ProcessStreamGobbler("ROS spindle speed shellout out", process, process.getInputStream(), printStream).start();
          process.waitFor();
          LogTools.info("Spindle speed shellout process finished");
 

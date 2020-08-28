@@ -7,18 +7,16 @@ import javafx.scene.shape.Mesh;
 import javafx.scene.shape.MeshView;
 import us.ihmc.commons.thread.ThreadTools;
 import us.ihmc.euclid.tools.EuclidCoreTools;
-import us.ihmc.euclid.tuple3D.Point3D;
 import us.ihmc.euclid.tuple3D.interfaces.Point3DReadOnly;
-import us.ihmc.humanoidBehaviors.ui.tools.PrivateAnimationTimer;
 import us.ihmc.javaFXToolkit.shapes.JavaFXMultiColorMeshBuilder;
 import us.ihmc.javaFXToolkit.shapes.TextureColorAdaptivePalette;
+import us.ihmc.javaFXVisualizers.PrivateAnimationTimer;
 import us.ihmc.log.LogTools;
 import us.ihmc.pathPlanning.visibilityGraphs.tools.PathTools;
 
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.stream.Collectors;
 
 public class BodyPathPlanGraphic extends Group
 {
@@ -44,7 +42,7 @@ public class BodyPathPlanGraphic extends Group
    /**
     * To process in parallel.
     */
-   public void generateMeshesAsynchronously(List<Point3DReadOnly> bodyPath)
+   public void generateMeshesAsynchronously(List<? extends Point3DReadOnly> bodyPath)
    {
       executorService.submit(() -> {
          LogTools.debug("Received body path plan containing {} points", bodyPath.size());
@@ -52,7 +50,7 @@ public class BodyPathPlanGraphic extends Group
       });
    }
 
-   public void generateMeshes(List<Point3DReadOnly> bodyPath)
+   public void generateMeshes(List<? extends Point3DReadOnly> bodyPath)
    {
       meshBuilder.clear();
 

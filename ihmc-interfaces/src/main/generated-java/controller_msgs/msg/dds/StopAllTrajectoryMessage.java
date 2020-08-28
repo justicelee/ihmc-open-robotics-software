@@ -12,6 +12,7 @@ import us.ihmc.pubsub.TopicDataType;
        */
 public class StopAllTrajectoryMessage extends Packet<StopAllTrajectoryMessage> implements Settable<StopAllTrajectoryMessage>, EpsilonComparable<StopAllTrajectoryMessage>
 {
+
    /**
             * Unique ID used to identify this message, should preferably be consecutively increasing.
             */
@@ -19,6 +20,8 @@ public class StopAllTrajectoryMessage extends Packet<StopAllTrajectoryMessage> i
 
    public StopAllTrajectoryMessage()
    {
+
+
    }
 
    public StopAllTrajectoryMessage(StopAllTrajectoryMessage other)
@@ -29,9 +32,11 @@ public class StopAllTrajectoryMessage extends Packet<StopAllTrajectoryMessage> i
 
    public void set(StopAllTrajectoryMessage other)
    {
+
       sequence_id_ = other.sequence_id_;
 
    }
+
 
    /**
             * Unique ID used to identify this message, should preferably be consecutively increasing.
@@ -66,7 +71,9 @@ public class StopAllTrajectoryMessage extends Packet<StopAllTrajectoryMessage> i
       if(other == null) return false;
       if(other == this) return true;
 
+
       if (!us.ihmc.idl.IDLTools.epsilonEqualsPrimitive(this.sequence_id_, other.sequence_id_, epsilon)) return false;
+
 
       return true;
    }
@@ -80,6 +87,7 @@ public class StopAllTrajectoryMessage extends Packet<StopAllTrajectoryMessage> i
 
       StopAllTrajectoryMessage otherMyClass = (StopAllTrajectoryMessage) other;
 
+
       if(this.sequence_id_ != otherMyClass.sequence_id_) return false;
 
 
@@ -92,6 +100,7 @@ public class StopAllTrajectoryMessage extends Packet<StopAllTrajectoryMessage> i
       StringBuilder builder = new StringBuilder();
 
       builder.append("StopAllTrajectoryMessage {");
+
       builder.append("sequence_id=");
       builder.append(this.sequence_id_);
       builder.append("}");

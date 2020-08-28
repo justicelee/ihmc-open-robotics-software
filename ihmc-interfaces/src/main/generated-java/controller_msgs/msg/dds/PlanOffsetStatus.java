@@ -12,10 +12,12 @@ import us.ihmc.pubsub.TopicDataType;
        */
 public class PlanOffsetStatus extends Packet<PlanOffsetStatus> implements Settable<PlanOffsetStatus>, EpsilonComparable<PlanOffsetStatus>
 {
+
    /**
             * Unique ID used to identify this message, should preferably be consecutively increasing.
             */
    public long sequence_id_;
+
    /**
             * The amount by which the remaining footsteps have been translated.
             */
@@ -23,7 +25,10 @@ public class PlanOffsetStatus extends Packet<PlanOffsetStatus> implements Settab
 
    public PlanOffsetStatus()
    {
+
+
       offset_vector_ = new us.ihmc.euclid.tuple3D.Vector3D();
+
    }
 
    public PlanOffsetStatus(PlanOffsetStatus other)
@@ -34,10 +39,13 @@ public class PlanOffsetStatus extends Packet<PlanOffsetStatus> implements Settab
 
    public void set(PlanOffsetStatus other)
    {
+
       sequence_id_ = other.sequence_id_;
+
 
       geometry_msgs.msg.dds.Vector3PubSubType.staticCopy(other.offset_vector_, offset_vector_);
    }
+
 
    /**
             * Unique ID used to identify this message, should preferably be consecutively increasing.
@@ -53,6 +61,7 @@ public class PlanOffsetStatus extends Packet<PlanOffsetStatus> implements Settab
    {
       return sequence_id_;
    }
+
 
 
    /**
@@ -81,7 +90,9 @@ public class PlanOffsetStatus extends Packet<PlanOffsetStatus> implements Settab
       if(other == null) return false;
       if(other == this) return true;
 
+
       if (!us.ihmc.idl.IDLTools.epsilonEqualsPrimitive(this.sequence_id_, other.sequence_id_, epsilon)) return false;
+
 
       if (!this.offset_vector_.epsilonEquals(other.offset_vector_, epsilon)) return false;
 
@@ -97,7 +108,9 @@ public class PlanOffsetStatus extends Packet<PlanOffsetStatus> implements Settab
 
       PlanOffsetStatus otherMyClass = (PlanOffsetStatus) other;
 
+
       if(this.sequence_id_ != otherMyClass.sequence_id_) return false;
+
 
       if (!this.offset_vector_.equals(otherMyClass.offset_vector_)) return false;
 
@@ -110,8 +123,10 @@ public class PlanOffsetStatus extends Packet<PlanOffsetStatus> implements Settab
       StringBuilder builder = new StringBuilder();
 
       builder.append("PlanOffsetStatus {");
+
       builder.append("sequence_id=");
       builder.append(this.sequence_id_);      builder.append(", ");
+
       builder.append("offset_vector=");
       builder.append(this.offset_vector_);
       builder.append("}");

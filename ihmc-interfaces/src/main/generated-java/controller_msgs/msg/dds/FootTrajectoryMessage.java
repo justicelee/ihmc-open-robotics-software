@@ -14,16 +14,21 @@ import us.ihmc.pubsub.TopicDataType;
        */
 public class FootTrajectoryMessage extends Packet<FootTrajectoryMessage> implements Settable<FootTrajectoryMessage>, EpsilonComparable<FootTrajectoryMessage>
 {
+
    public static final byte ROBOT_SIDE_LEFT = (byte) 0;
+
    public static final byte ROBOT_SIDE_RIGHT = (byte) 1;
+
    /**
             * Unique ID used to identify this message, should preferably be consecutively increasing.
             */
    public long sequence_id_;
+
    /**
             * Specifies which foot will execute the trajectory.
             */
    public byte robot_side_ = (byte) 255;
+
    /**
             * The position/orientation trajectory information.
             */
@@ -31,7 +36,11 @@ public class FootTrajectoryMessage extends Packet<FootTrajectoryMessage> impleme
 
    public FootTrajectoryMessage()
    {
+
+
+
       se3_trajectory_ = new controller_msgs.msg.dds.SE3TrajectoryMessage();
+
    }
 
    public FootTrajectoryMessage(FootTrajectoryMessage other)
@@ -42,12 +51,16 @@ public class FootTrajectoryMessage extends Packet<FootTrajectoryMessage> impleme
 
    public void set(FootTrajectoryMessage other)
    {
+
       sequence_id_ = other.sequence_id_;
+
 
       robot_side_ = other.robot_side_;
 
+
       controller_msgs.msg.dds.SE3TrajectoryMessagePubSubType.staticCopy(other.se3_trajectory_, se3_trajectory_);
    }
+
 
    /**
             * Unique ID used to identify this message, should preferably be consecutively increasing.
@@ -64,6 +77,7 @@ public class FootTrajectoryMessage extends Packet<FootTrajectoryMessage> impleme
       return sequence_id_;
    }
 
+
    /**
             * Specifies which foot will execute the trajectory.
             */
@@ -78,6 +92,7 @@ public class FootTrajectoryMessage extends Packet<FootTrajectoryMessage> impleme
    {
       return robot_side_;
    }
+
 
 
    /**
@@ -106,9 +121,12 @@ public class FootTrajectoryMessage extends Packet<FootTrajectoryMessage> impleme
       if(other == null) return false;
       if(other == this) return true;
 
+
       if (!us.ihmc.idl.IDLTools.epsilonEqualsPrimitive(this.sequence_id_, other.sequence_id_, epsilon)) return false;
 
+
       if (!us.ihmc.idl.IDLTools.epsilonEqualsPrimitive(this.robot_side_, other.robot_side_, epsilon)) return false;
+
 
       if (!this.se3_trajectory_.epsilonEquals(other.se3_trajectory_, epsilon)) return false;
 
@@ -124,9 +142,12 @@ public class FootTrajectoryMessage extends Packet<FootTrajectoryMessage> impleme
 
       FootTrajectoryMessage otherMyClass = (FootTrajectoryMessage) other;
 
+
       if(this.sequence_id_ != otherMyClass.sequence_id_) return false;
 
+
       if(this.robot_side_ != otherMyClass.robot_side_) return false;
+
 
       if (!this.se3_trajectory_.equals(otherMyClass.se3_trajectory_)) return false;
 
@@ -139,10 +160,13 @@ public class FootTrajectoryMessage extends Packet<FootTrajectoryMessage> impleme
       StringBuilder builder = new StringBuilder();
 
       builder.append("FootTrajectoryMessage {");
+
       builder.append("sequence_id=");
       builder.append(this.sequence_id_);      builder.append(", ");
+
       builder.append("robot_side=");
       builder.append(this.robot_side_);      builder.append(", ");
+
       builder.append("se3_trajectory=");
       builder.append(this.se3_trajectory_);
       builder.append("}");

@@ -42,7 +42,7 @@ import us.ihmc.robotics.geometry.PlanarRegionsList;
 import us.ihmc.robotics.referenceFrames.PoseReferenceFrame;
 import us.ihmc.robotics.robotSide.QuadrantDependentList;
 import us.ihmc.robotics.robotSide.RobotQuadrant;
-import us.ihmc.yoVariables.registry.YoVariableRegistry;
+import us.ihmc.yoVariables.registry.YoRegistry;
 import us.ihmc.yoVariables.variable.YoBoolean;
 import us.ihmc.yoVariables.variable.YoDouble;
 import us.ihmc.yoVariables.variable.YoLong;
@@ -52,14 +52,14 @@ import java.util.List;
 
 public class AStarPawStepPlanner implements BodyPathAndPawPlanner
 {
-   private static final boolean debug = false;
+   private static final boolean debug = true;
 
    private static final ReferenceFrame worldFrame = ReferenceFrame.getWorldFrame();
    private static final RobotQuadrant defaultFirstQuadrant = RobotQuadrant.FRONT_LEFT;
 
    private RobotQuadrant startQuadrant;
    private final String name = getClass().getSimpleName();
-   private final YoVariableRegistry registry = new YoVariableRegistry(name);
+   private final YoRegistry registry = new YoRegistry(name);
 
    private final QuadrupedXGaitSettingsReadOnly xGaitSettings;
    private final PlanarRegionPawConstraintDataHolder highLevelConstraintDataHolder = new PlanarRegionPawConstraintDataHolder();
@@ -105,7 +105,7 @@ public class AStarPawStepPlanner implements BodyPathAndPawPlanner
    public AStarPawStepPlanner(PawStepPlannerParametersReadOnly parameters, QuadrupedXGaitSettingsReadOnly xGaitSettings, PawNodeChecker nodeChecker,
                               PawNodeTransitionChecker nodeTransitionChecker, PawPlanningCostToGoHeuristics heuristics, PawNodeExpansion nodeExpansion,
                               PawNodeCost stepCostCalculator, PawNodeSnapper snapper,
-                              PawStepPlannerListener listener, YoVariableRegistry parentRegistry)
+                              PawStepPlannerListener listener, YoRegistry parentRegistry)
    {
       this.parameters = parameters;
       this.xGaitSettings = xGaitSettings;
@@ -500,8 +500,11 @@ public class AStarPawStepPlanner implements BodyPathAndPawPlanner
             PawNode previousNode = path.get(i - 1);
             Point3D previousPosition = new Point3D(previousNode.getX(robotQuadrant), previousNode.getY(robotQuadrant), 0.0);
             PawNodeSnapData previousSnapData = snapper.getSnapData(previousNode.getXIndex(robotQuadrant), previousNode.getYIndex(robotQuadrant));
-            RigidBodyTransform previousSnapTransform = previousSnapData.getSnapTransform();
-            previousPosition.applyTransform(previousSnapTransform);
+            if (previousSnapData != null)
+            {
+               RigidBodyTransform previousSnapTransform = previousSnapData.getSnapTransform();
+               previousPosition.applyTransform(previousSnapTransform);
+            }
             if (Math.abs(position.getZ() - previousPosition.getZ()) > parameters.getMaximumStepChangeZ())
             {
                LogTools.error("height change error.");
@@ -810,7 +813,7 @@ public class AStarPawStepPlanner implements BodyPathAndPawPlanner
    }
 
    public static AStarPawStepPlanner createPlanner(PawStepPlannerParametersReadOnly parameters, QuadrupedXGaitSettingsReadOnly xGaitSettings,
-                                                   PawStepPlannerListener listener, YoVariableRegistry registry)
+                                                   PawStepPlannerListener listener, YoRegistry registry)
    {
       PawNodeSnapper snapper = new CliffAvoidancePlanarRegionFootstepNodeSnapper(parameters, true);
       PawNodeExpansion expansion = new ParameterBasedPawNodeExpansion(parameters, xGaitSettings);

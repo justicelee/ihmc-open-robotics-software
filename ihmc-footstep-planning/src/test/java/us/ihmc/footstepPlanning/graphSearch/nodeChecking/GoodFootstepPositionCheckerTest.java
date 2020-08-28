@@ -7,15 +7,13 @@ import us.ihmc.euclid.referenceFrame.FramePoint3D;
 import us.ihmc.euclid.referenceFrame.ReferenceFrame;
 import us.ihmc.euclid.tools.EuclidCoreTools;
 import us.ihmc.euclid.tuple4D.Quaternion;
-import us.ihmc.footstepPlanning.graphSearch.footstepSnapping.FootstepNodeSnapper;
-import us.ihmc.footstepPlanning.graphSearch.footstepSnapping.SimplePlanarRegionFootstepNodeSnapper;
+import us.ihmc.footstepPlanning.graphSearch.footstepSnapping.FootstepNodeSnapAndWiggler;
 import us.ihmc.footstepPlanning.graphSearch.graph.FootstepNode;
 import us.ihmc.footstepPlanning.graphSearch.graph.LatticeNode;
 import us.ihmc.footstepPlanning.graphSearch.graph.visualization.BipedalFootstepPlannerNodeRejectionReason;
 import us.ihmc.footstepPlanning.graphSearch.parameters.DefaultFootstepPlannerParameters;
+import us.ihmc.footstepPlanning.log.FootstepPlannerEdgeData;
 import us.ihmc.footstepPlanning.tools.PlannerTools;
-import us.ihmc.robotEnvironmentAwareness.planarRegion.PolygonizerTools;
-import us.ihmc.robotics.geometry.PlanarRegionTools;
 import us.ihmc.robotics.geometry.PlanarRegionsList;
 import us.ihmc.robotics.geometry.PlanarRegionsListGenerator;
 import us.ihmc.robotics.referenceFrames.PoseReferenceFrame;
@@ -28,14 +26,16 @@ import static us.ihmc.robotics.Assert.assertTrue;
 
 public class GoodFootstepPositionCheckerTest
 {
+   private final FootstepPlannerEdgeData edgeData = new FootstepPlannerEdgeData();
+
    @Test
    public void testStanceFootPitchedTooMuch()
    {
       SideDependentList<ConvexPolygon2D> footPolygons = PlannerTools.createDefaultFootPolygons();
 
       DefaultFootstepPlannerParameters parameters = new DefaultFootstepPlannerParameters();
-      SimplePlanarRegionFootstepNodeSnapper snapper = new SimplePlanarRegionFootstepNodeSnapper(footPolygons);
-      GoodFootstepPositionChecker checker = new GoodFootstepPositionChecker(parameters, snapper);
+      FootstepNodeSnapAndWiggler snapper = new FootstepNodeSnapAndWiggler(footPolygons, parameters);
+      GoodFootstepPositionChecker checker = new GoodFootstepPositionChecker(parameters, snapper, edgeData);
       parameters.setMaximumStepXWhenFullyPitched(0.3);
       parameters.setMinimumStepZWhenFullyPitched(0.05);
 
@@ -59,7 +59,6 @@ public class GoodFootstepPositionCheckerTest
       PlanarRegionsList flatGround = planarRegionGenerator.getPlanarRegionsList();
 
       snapper.setPlanarRegions(flatGround);
-      checker.setPlanarRegions(flatGround);
 
       FootstepNode stanceNode = new FootstepNode(0.0, 0.15, 0.0, RobotSide.LEFT);
       FootstepNode childNode = new FootstepNode(0.3, -0.15, 0.0, RobotSide.RIGHT);
@@ -70,7 +69,6 @@ public class GoodFootstepPositionCheckerTest
       assertEquals(null, rejectionReason);
 
       snapper.setPlanarRegions(angledGround);
-      checker.setPlanarRegions(angledGround);
 
       isValid = checker.isNodeValid(childNode, stanceNode);
       assertFalse(isValid);
@@ -83,8 +81,8 @@ public class GoodFootstepPositionCheckerTest
    public void testMaxMinYawOnLeftFootAtOrigin()
    {
       SideDependentList<ConvexPolygon2D> footPolygons = PlannerTools.createDefaultFootPolygons();
-      FootstepNodeSnapper snapper = new SimplePlanarRegionFootstepNodeSnapper(footPolygons);
       DefaultFootstepPlannerParameters parameters = new DefaultFootstepPlannerParameters();
+      FootstepNodeSnapAndWiggler snapper = new FootstepNodeSnapAndWiggler(footPolygons, parameters);
       double maxYaw = 1.2;
       double minYaw = -0.5;
       double yawReduction = 0.5;
@@ -95,7 +93,7 @@ public class GoodFootstepPositionCheckerTest
       double maxYawAtFullLength = yawReduction * maxYaw;
       double minYawAtFullLength = yawReduction * minYaw;
 
-      GoodFootstepPositionChecker nodeChecker = new GoodFootstepPositionChecker(parameters, snapper);
+      GoodFootstepPositionChecker nodeChecker = new GoodFootstepPositionChecker(parameters, snapper, edgeData);
 
       double snappedPosition = snapToGrid(parameters.getIdealFootstepWidth());
       double reachAtChild = Math.abs(snappedPosition - parameters.getIdealFootstepWidth());
@@ -119,8 +117,8 @@ public class GoodFootstepPositionCheckerTest
    public void testMaxMinYawOnRightFootAtOrigin()
    {
       SideDependentList<ConvexPolygon2D> footPolygons = PlannerTools.createDefaultFootPolygons();
-      FootstepNodeSnapper snapper = new SimplePlanarRegionFootstepNodeSnapper(footPolygons);
       DefaultFootstepPlannerParameters parameters = new DefaultFootstepPlannerParameters();
+      FootstepNodeSnapAndWiggler snapper = new FootstepNodeSnapAndWiggler(footPolygons, parameters);
       double maxYaw = 1.2;
       double minYaw = -0.5;
       double yawReduction = 0.5;
@@ -131,7 +129,7 @@ public class GoodFootstepPositionCheckerTest
       double maxYawAtFullLength = yawReduction * maxYaw;
       double minYawAtFullLength = yawReduction * minYaw;
 
-      GoodFootstepPositionChecker nodeChecker = new GoodFootstepPositionChecker(parameters, snapper);
+      GoodFootstepPositionChecker nodeChecker = new GoodFootstepPositionChecker(parameters, snapper, edgeData);
 
       double snappedPosition = snapToGrid(parameters.getIdealFootstepWidth());
       double reachAtChild = Math.abs(snappedPosition - parameters.getIdealFootstepWidth());
@@ -155,8 +153,8 @@ public class GoodFootstepPositionCheckerTest
    public void testMaxMinYawOnLeftFootAtOriginWithParentYaw()
    {
       SideDependentList<ConvexPolygon2D> footPolygons = PlannerTools.createDefaultFootPolygons();
-      FootstepNodeSnapper snapper = new SimplePlanarRegionFootstepNodeSnapper(footPolygons);
       DefaultFootstepPlannerParameters parameters = new DefaultFootstepPlannerParameters();
+      FootstepNodeSnapAndWiggler snapper = new FootstepNodeSnapAndWiggler(footPolygons, parameters);
       double maxYaw = 1.2;
       double minYaw = -0.5;
       double yawReduction = 0.5;
@@ -167,7 +165,7 @@ public class GoodFootstepPositionCheckerTest
       double maxYawAtFullLength = yawReduction * maxYaw;
       double minYawAtFullLength = yawReduction * minYaw;
 
-      GoodFootstepPositionChecker nodeChecker = new GoodFootstepPositionChecker(parameters, snapper);
+      GoodFootstepPositionChecker nodeChecker = new GoodFootstepPositionChecker(parameters, snapper, edgeData);
 
       double parentYaw = snapToYawGrid(Math.toRadians(75));
 
@@ -200,8 +198,8 @@ public class GoodFootstepPositionCheckerTest
    public void testMaxMinYawOnRightFootAtOriginWithParentYaw()
    {
       SideDependentList<ConvexPolygon2D> footPolygons = PlannerTools.createDefaultFootPolygons();
-      FootstepNodeSnapper snapper = new SimplePlanarRegionFootstepNodeSnapper(footPolygons);
       DefaultFootstepPlannerParameters parameters = new DefaultFootstepPlannerParameters();
+      FootstepNodeSnapAndWiggler snapper = new FootstepNodeSnapAndWiggler(footPolygons, parameters);
       double maxYaw = 1.2;
       double minYaw = -0.5;
       double yawReduction = 0.5;
@@ -212,7 +210,7 @@ public class GoodFootstepPositionCheckerTest
       double maxYawAtFullLength = yawReduction * maxYaw;
       double minYawAtFullLength = yawReduction * minYaw;
 
-      GoodFootstepPositionChecker nodeChecker = new GoodFootstepPositionChecker(parameters, snapper);
+      GoodFootstepPositionChecker nodeChecker = new GoodFootstepPositionChecker(parameters, snapper, edgeData);
 
       double parentYaw = snapToYawGrid(Math.toRadians(75));
 
@@ -245,8 +243,8 @@ public class GoodFootstepPositionCheckerTest
    public void testMaxMinYawOnLeftFootAtOriginSteppingUp()
    {
       SideDependentList<ConvexPolygon2D> footPolygons = PlannerTools.createDefaultFootPolygons();
-      FootstepNodeSnapper snapper = new SimplePlanarRegionFootstepNodeSnapper(footPolygons);
       DefaultFootstepPlannerParameters parameters = new DefaultFootstepPlannerParameters();
+      FootstepNodeSnapAndWiggler snapper = new FootstepNodeSnapAndWiggler(footPolygons, parameters);
       double maxYaw = 1.2;
       double minYaw = -0.5;
       double yawReduction = 0.5;
@@ -257,7 +255,7 @@ public class GoodFootstepPositionCheckerTest
       double maxYawAtFullLength = yawReduction * maxYaw;
       double minYawAtFullLength = yawReduction * minYaw;
 
-      GoodFootstepPositionChecker nodeChecker = new GoodFootstepPositionChecker(parameters, snapper);
+      GoodFootstepPositionChecker nodeChecker = new GoodFootstepPositionChecker(parameters, snapper, edgeData);
 
       double snappedYPosition = snapToGrid(parameters.getIdealFootstepWidth());
       double snappedXPosition = snapDownToGrid(0.8 * parameters.getMaximumStepReach());
@@ -275,7 +273,6 @@ public class GoodFootstepPositionCheckerTest
       PlanarRegionsList planarRegionsList = planarRegionsListGenerator.getPlanarRegionsList();
 
       snapper.setPlanarRegions(planarRegionsList);
-      nodeChecker.setPlanarRegions(planarRegionsList);
 
       assertFalse(nodeChecker.isNodeValid(childNodeAtMaxYaw, parentNode));
       assertEquals(BipedalFootstepPlannerNodeRejectionReason.STEP_YAWS_TOO_MUCH, nodeChecker.getRejectionReason());

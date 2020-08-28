@@ -46,7 +46,6 @@ import us.ihmc.avatar.joystickBasedJavaFXController.JoystickStepParametersProper
 import us.ihmc.commonWalkingControlModules.configurations.SteppingParameters;
 import us.ihmc.commonWalkingControlModules.configurations.WalkingControllerParameters;
 import us.ihmc.commonWalkingControlModules.desiredFootStep.footstepGenerator.ContinuousStepGenerator;
-import us.ihmc.commonWalkingControlModules.highLevelHumanoidControl.factories.ControllerAPIDefinition;
 import us.ihmc.commons.MathTools;
 import us.ihmc.commons.thread.ThreadTools;
 import us.ihmc.communication.IHMCROS2Publisher;
@@ -78,6 +77,7 @@ import us.ihmc.robotics.geometry.PlanarRegion;
 import us.ihmc.robotics.geometry.PlanarRegionsList;
 import us.ihmc.robotics.robotSide.RobotSide;
 import us.ihmc.robotics.robotSide.SideDependentList;
+import us.ihmc.ros2.ROS2Topic;
 import us.ihmc.ros2.Ros2Node;
 import us.ihmc.yoVariables.providers.BooleanProvider;
 import us.ihmc.yoVariables.providers.DoubleProvider;
@@ -159,21 +159,21 @@ public class StepGeneratorJavaFXController
       steppingParameters = walkingControllerParameters.getSteppingParameters();
 
       stepParametersReference = messager.createInput(SteppingParameters, new JoystickStepParameters(walkingControllerParameters));
-      ROS2Tools.MessageTopicNameGenerator controllerPubGenerator = ControllerAPIDefinition.getPublisherTopicNameGenerator(robotName);
-      ROS2Tools.MessageTopicNameGenerator controllerSubGenerator = ControllerAPIDefinition.getSubscriberTopicNameGenerator(robotName);
+      ROS2Topic controllerOutputTopic = ROS2Tools.getControllerOutputTopic(robotName);
+      ROS2Topic controllerInputTopic = ROS2Tools.getControllerInputTopic(robotName);
 
-      ROS2Tools.createCallbackSubscription(ros2Node,
-                                           FootstepStatusMessage.class,
-                                           controllerPubGenerator,
+      ROS2Tools.createCallbackSubscriptionTypeNamed(ros2Node,
+                                                    FootstepStatusMessage.class,
+                                                    controllerOutputTopic,
                                            s -> continuousStepGenerator.consumeFootstepStatus(s.takeNextData()));
-      ROS2Tools.createCallbackSubscription(ros2Node,
-                                           PlanarRegionsListMessage.class,
-                                           REACommunicationProperties.publisherTopicNameGenerator,
+      ROS2Tools.createCallbackSubscriptionTypeNamed(ros2Node,
+                                                    PlanarRegionsListMessage.class,
+                                                    REACommunicationProperties.outputTopic,
                                            s -> planarRegionsListMessage.set(s.takeNextData()));
 
-      pauseWalkingPublisher = ROS2Tools.createPublisher(ros2Node, PauseWalkingMessage.class, controllerSubGenerator);
-      footstepPublisher = ROS2Tools.createPublisher(ros2Node, FootstepDataListMessage.class, controllerSubGenerator);
-      reaStateRequestPublisher = ROS2Tools.createPublisher(ros2Node, REAStateRequestMessage.class, REACommunicationProperties.subscriberTopicNameGenerator);
+      pauseWalkingPublisher = ROS2Tools.createPublisherTypeNamed(ros2Node, PauseWalkingMessage.class, controllerInputTopic);
+      footstepPublisher = ROS2Tools.createPublisherTypeNamed(ros2Node, FootstepDataListMessage.class, controllerInputTopic);
+      reaStateRequestPublisher = ROS2Tools.createPublisherTypeNamed(ros2Node, REAStateRequestMessage.class, REACommunicationProperties.inputTopic);
 
       trajectoryDuration = messager.createInput(WalkingTrajectoryDuration, 1.0);
       stepTime = () -> stepParametersReference.get().getSwingDuration() + stepParametersReference.get().getTransferDuration();
@@ -241,12 +241,12 @@ public class StepGeneratorJavaFXController
       messager.registerTopicListener(DPadLeftState, state -> sendREAResumeRequest());
       messager.registerTopicListener(DPadDownState, state -> sendREAClearRequest());
 
-      ROS2Tools.createCallbackSubscription(ros2Node, WalkingControllerFailureStatusMessage.class, controllerPubGenerator, s -> stopWalking(true));
+      ROS2Tools.createCallbackSubscriptionTypeNamed(ros2Node, WalkingControllerFailureStatusMessage.class, controllerOutputTopic, s -> stopWalking(true));
       messager.registerTopicListener(ButtonSelectState, state -> stopWalking(true));
       messager.registerTopicListener(ButtonSelectState, state -> lowLevelMessenger.sendFreezeRequest());
       messager.registerTopicListener(ButtonStartState, state -> stopWalking(true));
       messager.registerTopicListener(ButtonStartState, state -> lowLevelMessenger.sendStandRequest());
-      ROS2Tools.createCallbackSubscription(ros2Node, CapturabilityBasedStatus.class, controllerPubGenerator, s ->
+      ROS2Tools.createCallbackSubscriptionTypeNamed(ros2Node, CapturabilityBasedStatus.class, controllerOutputTopic, s ->
       {
          CapturabilityBasedStatus status = s.takeNextData();
          isLeftFootInSupport.set(!status.getLeftFootSupportPolygon2d().isEmpty());
@@ -266,7 +266,7 @@ public class StepGeneratorJavaFXController
       FramePose3D adjustedBasedOnStanceFoot = new FramePose3D();
       adjustedBasedOnStanceFoot.getPosition().set(footstepPose.getPosition());
       adjustedBasedOnStanceFoot.setZ(continuousStepGenerator.getCurrentSupportFootPose().getZ());
-      adjustedBasedOnStanceFoot.setOrientation(footstepPose.getOrientation());
+      adjustedBasedOnStanceFoot.getOrientation().set(footstepPose.getOrientation());
 
       if (planarRegionsList.get() != null)
       {
@@ -450,14 +450,15 @@ public class StepGeneratorJavaFXController
       if (planarRegionsList.get() == null)
          return true;
 
-      tempTransform.setTranslation(touchdownPose.getPosition().getX(), touchdownPose.getPosition().getY(), 0.0);
-      tempTransform.setRotationYaw(touchdownPose.getYaw());
+      tempTransform.getTranslation().set(touchdownPose.getPosition().getX(), touchdownPose.getPosition().getY(), 0.0);
+      tempTransform.getRotation().setToYawOrientation(touchdownPose.getYaw());
 
       footPolygon.set(footPolygons.get(swingSide));
       footPolygon.applyTransform(tempTransform, false);
 
       PlanarRegionsList planarRegionsList = this.planarRegionsList.get();
-      return PlanarRegionsListPolygonSnapper.snapPolygonToPlanarRegionsList(footPolygon, planarRegionsList, tempRegion) != null;
+
+      return PlanarRegionsListPolygonSnapper.snapPolygonToPlanarRegionsList(footPolygon, planarRegionsList, Double.POSITIVE_INFINITY, tempRegion) != null;
    }
 
    private void processToggleFlamingoMode(RobotSide robotSide, ButtonState state)

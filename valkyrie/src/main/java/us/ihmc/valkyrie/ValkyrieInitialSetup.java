@@ -25,23 +25,22 @@ public class ValkyrieInitialSetup implements DRCRobotInitialSetup<HumanoidFloati
    private final Vector3D positionInWorld = new Vector3D();
    private final Vector3D offset = new Vector3D();
    private final Quaternion rotation = new Quaternion();
-   private boolean robotInitialized = false;
+
+   public ValkyrieInitialSetup()
+   {
+   }
 
    public ValkyrieInitialSetup(double groundZ, double initialYaw)
    {
-      this.groundZ = groundZ;
-      this.initialYaw = initialYaw;
+      setInitialGroundHeight(groundZ);
+      setInitialYaw(initialYaw);
    }
 
    @Override
    public void initializeRobot(HumanoidFloatingRootJointRobot robot, DRCRobotJointMap jointMap)
    {
-      if (!robotInitialized)
-      {
-         setActuatorPositions(robot, jointMap);
-         positionRobotInWorld(robot);
-         robotInitialized = true;
-      }
+      setActuatorPositions(robot, jointMap);
+      positionRobotInWorld(robot);
    }
 
    private void setActuatorPositions(FloatingRootJointRobot robot, DRCRobotJointMap jointMap)
@@ -79,10 +78,12 @@ public class ValkyrieInitialSetup implements DRCRobotInitialSetup<HumanoidFloati
 
    private void positionRobotInWorld(HumanoidFloatingRootJointRobot robot)
    {
+      robot.getRootJoint().setPosition(0.0, 0.0, 0.0);
+      robot.update();
       robot.getRootJointToWorldTransform(rootToWorld);
       rootToWorld.get(rotation, positionInWorld);
-      positionInWorld.setZ(groundZ + getPelvisToFoot(robot));
       positionInWorld.add(offset);
+      positionInWorld.addZ(groundZ - getLowestFootContactPointHeight(robot));
       robot.setPositionInWorld(positionInWorld);
 
       FrameQuaternion frameOrientation = new FrameQuaternion(ReferenceFrame.getWorldFrame(), rotation);
@@ -94,25 +95,24 @@ public class ValkyrieInitialSetup implements DRCRobotInitialSetup<HumanoidFloati
       robot.update();
    }
 
-   private double getPelvisToFoot(HumanoidFloatingRootJointRobot robot)
+   private double getLowestFootContactPointHeight(HumanoidFloatingRootJointRobot robot)
    {
       List<GroundContactPoint> contactPoints = robot.getFootGroundContactPoints(RobotSide.LEFT);
       double height = Double.POSITIVE_INFINITY;
 
       if (contactPoints.size() == 0)
+      {
          height = -1.0050100629487357;
+      }
       else
       {
          for (GroundContactPoint gc : contactPoints)
          {
-            if (gc.getPositionPoint().getZ() < height)
-            {
-               height = gc.getPositionPoint().getZ();
-            }
+            height = Math.min(height, gc.getPositionCopy().getZ());
          }
       }
 
-      return offset.getZ() - height;
+      return height;
    }
 
    public void getOffset(Vector3D offsetToPack)

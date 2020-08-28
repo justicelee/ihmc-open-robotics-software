@@ -13,6 +13,7 @@ import us.ihmc.pubsub.TopicDataType;
        */
 public class RequestWristForceSensorCalibrationPacket extends Packet<RequestWristForceSensorCalibrationPacket> implements Settable<RequestWristForceSensorCalibrationPacket>, EpsilonComparable<RequestWristForceSensorCalibrationPacket>
 {
+
    /**
             * Unique ID used to identify this message, should preferably be consecutively increasing.
             */
@@ -20,6 +21,8 @@ public class RequestWristForceSensorCalibrationPacket extends Packet<RequestWris
 
    public RequestWristForceSensorCalibrationPacket()
    {
+
+
    }
 
    public RequestWristForceSensorCalibrationPacket(RequestWristForceSensorCalibrationPacket other)
@@ -30,9 +33,11 @@ public class RequestWristForceSensorCalibrationPacket extends Packet<RequestWris
 
    public void set(RequestWristForceSensorCalibrationPacket other)
    {
+
       sequence_id_ = other.sequence_id_;
 
    }
+
 
    /**
             * Unique ID used to identify this message, should preferably be consecutively increasing.
@@ -67,7 +72,9 @@ public class RequestWristForceSensorCalibrationPacket extends Packet<RequestWris
       if(other == null) return false;
       if(other == this) return true;
 
+
       if (!us.ihmc.idl.IDLTools.epsilonEqualsPrimitive(this.sequence_id_, other.sequence_id_, epsilon)) return false;
+
 
       return true;
    }
@@ -81,6 +88,7 @@ public class RequestWristForceSensorCalibrationPacket extends Packet<RequestWris
 
       RequestWristForceSensorCalibrationPacket otherMyClass = (RequestWristForceSensorCalibrationPacket) other;
 
+
       if(this.sequence_id_ != otherMyClass.sequence_id_) return false;
 
 
@@ -93,6 +101,7 @@ public class RequestWristForceSensorCalibrationPacket extends Packet<RequestWris
       StringBuilder builder = new StringBuilder();
 
       builder.append("RequestWristForceSensorCalibrationPacket {");
+
       builder.append("sequence_id=");
       builder.append(this.sequence_id_);
       builder.append("}");

@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<?import javafx.geometry.Insets?>
+<BorderPane xmlns="http://javafx.com/javafx/10.0.2-internal" xmlns:fx="http://javafx.com/fxml/1" fx:controller="us.ihmc.footstepPlanning.ui.controllers.FootstepPlannerLogVisualizerController">
+
+    <left>
+        <Region prefWidth="50" />
+    </left>
+
+    <right>
+        <Region prefWidth="50" />
+    </right>
+
+    <top>
+        <HBox>
+            <children>
+                <VBox>
+                    <VBox alignment="CENTER" BorderPane.alignment="CENTER">
+                        <Region prefHeight="20"/>
+                        <Button fx:id="reset" prefWidth="150" text="Reset"/>
+                        <Region prefHeight="10"/>
+                        <Button fx:id="stepInto" onAction="#stepInto" prefWidth="150" text="Step Into"/>
+                        <Region prefHeight="10"/>
+                        <Button fx:id="stepBack" onAction="#stepBack" prefWidth="150" text="Step Back"/>
+                        <Region prefHeight="10"/>
+                    </VBox>
+
+                    <Separator orientation="HORIZONTAL" prefHeight="20"/>
+
+                    <VBox>
+                        <CheckBox fx:id="showStanceStep" selected="true" text="Show stance step"/>
+                        <Region prefHeight="5"/>
+                        <CheckBox fx:id="showUnsnappedStep" selected="true" text="Show unsnapped step"/>
+                        <Region prefHeight="5"/>
+                        <CheckBox fx:id="showSnappedStep" selected="true" text="Show snapped step"/>
+                        <Region prefHeight="5"/>
+                        <CheckBox fx:id="showSnapAndWiggledStep" selected="true" text="Show snap and wiggled step"/>
+                        <Region prefHeight="5"/>
+                        <CheckBox fx:id="showIdealStep" selected="true" text="Show ideal step"/>
+                        <padding><Insets left="20"/></padding>
+                    </VBox>
+                </VBox>
+
+                <Separator orientation="VERTICAL" prefWidth="20" />
+
+                <VBox alignment="TOP_CENTER" prefWidth="1500" BorderPane.alignment="CENTER">
+                    <TableView fx:id="stanceStepTable" maxHeight="24" />
+                    <TableView fx:id="candidateStepTable" prefHeight="300" />
+                </VBox>
+            </children>
+        </HBox>
+    </top>
+
+</BorderPane>
