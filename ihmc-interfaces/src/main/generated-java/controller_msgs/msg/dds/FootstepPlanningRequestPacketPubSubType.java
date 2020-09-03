@@ -92,7 +92,7 @@ public class FootstepPlanningRequestPacketPubSubType implements us.ihmc.pubsub.T
       current_alignment += 8 + us.ihmc.idl.CDR.alignment(current_alignment, 8);
 
 
-      current_alignment += 1 + us.ihmc.idl.CDR.alignment(current_alignment, 1);
+      current_alignment += 8 + us.ihmc.idl.CDR.alignment(current_alignment, 8);
 
 
       current_alignment += 8 + us.ihmc.idl.CDR.alignment(current_alignment, 8);
@@ -207,7 +207,7 @@ public class FootstepPlanningRequestPacketPubSubType implements us.ihmc.pubsub.T
 
 
 
-      current_alignment += 1 + us.ihmc.idl.CDR.alignment(current_alignment, 1);
+      current_alignment += 8 + us.ihmc.idl.CDR.alignment(current_alignment, 8);
 
 
 
@@ -310,7 +310,7 @@ public class FootstepPlanningRequestPacketPubSubType implements us.ihmc.pubsub.T
       cdr.write_type_6(data.getGoalYawProximity());
 
 
-      cdr.write_type_9(data.getRequestedPathHeading());
+      cdr.write_type_6(data.getRequestedPathHeading());
 
 
       cdr.write_type_6(data.getTimeout());
@@ -390,7 +390,7 @@ public class FootstepPlanningRequestPacketPubSubType implements us.ihmc.pubsub.T
       data.setGoalYawProximity(cdr.read_type_6());
       	
 
-      data.setRequestedPathHeading(cdr.read_type_9());
+      data.setRequestedPathHeading(cdr.read_type_6());
       	
 
       data.setTimeout(cdr.read_type_6());
@@ -467,7 +467,7 @@ public class FootstepPlanningRequestPacketPubSubType implements us.ihmc.pubsub.T
 
       ser.write_type_6("goal_yaw_proximity", data.getGoalYawProximity());
 
-      ser.write_type_9("requested_path_heading", data.getRequestedPathHeading());
+      ser.write_type_6("requested_path_heading", data.getRequestedPathHeading());
 
       ser.write_type_6("timeout", data.getTimeout());
 
@@ -533,7 +533,7 @@ public class FootstepPlanningRequestPacketPubSubType implements us.ihmc.pubsub.T
 
       data.setGoalYawProximity(ser.read_type_6("goal_yaw_proximity"));
 
-      data.setRequestedPathHeading(ser.read_type_9("requested_path_heading"));
+      data.setRequestedPathHeading(ser.read_type_6("requested_path_heading"));
 
       data.setTimeout(ser.read_type_6("timeout"));
 
