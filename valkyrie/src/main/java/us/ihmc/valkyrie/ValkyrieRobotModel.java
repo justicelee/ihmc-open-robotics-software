@@ -17,6 +17,7 @@ import us.ihmc.commonWalkingControlModules.configurations.ICPWithTimeFreezingPla
 import us.ihmc.commonWalkingControlModules.configurations.SliderBoardParameters;
 import us.ihmc.commonWalkingControlModules.configurations.WalkingControllerParameters;
 import us.ihmc.communication.ROS2Tools;
+import us.ihmc.euclid.geometry.ConvexPolygon2D;
 import us.ihmc.euclid.transform.RigidBodyTransform;
 import us.ihmc.footstepPlanning.graphSearch.parameters.FootstepPlannerParametersBasics;
 import us.ihmc.footstepPlanning.icp.DefaultSplitFractionCalculatorParameters;
@@ -37,6 +38,7 @@ import us.ihmc.robotics.physics.CollidableHelper;
 import us.ihmc.robotics.physics.RobotCollisionModel;
 import us.ihmc.robotics.robotDescription.RobotDescription;
 import us.ihmc.robotics.robotSide.RobotSide;
+import us.ihmc.robotics.robotSide.SideDependentList;
 import us.ihmc.robotics.sensors.ContactSensorType;
 import us.ihmc.ros2.RealtimeROS2Node;
 import us.ihmc.sensorProcessing.stateEstimation.StateEstimatorParameters;
@@ -531,6 +533,27 @@ public class ValkyrieRobotModel implements DRCRobotModel
    public SplitFractionCalculatorParametersBasics getSplitFractionCalculatorParameters()
    {
       return new DefaultSplitFractionCalculatorParameters();
+   }
+
+   @Override
+   public SideDependentList<ConvexPolygon2D> getFootPolygonsForPlanning()
+   {
+      return new SideDependentList<>(side ->
+                                     {
+                                        ConvexPolygon2D footPolygon = new ConvexPolygon2D();
+
+                                        double footForward = ValkyriePhysicalProperties.getActualFootForward();
+                                        double footBack = ValkyriePhysicalProperties.getActualFootBack();
+                                        double footWidth = ValkyriePhysicalProperties.getActualFootWidth();
+
+                                        footPolygon.addVertex(footBack, - 0.5 * footWidth);
+                                        footPolygon.addVertex(footBack, 0.5 * footWidth);
+                                        footPolygon.addVertex(footForward, - 0.5 * footWidth);
+                                        footPolygon.addVertex(footForward, 0.5 * footWidth);
+
+                                        footPolygon.update();
+                                        return footPolygon;
+                                     });
    }
 
    @Override

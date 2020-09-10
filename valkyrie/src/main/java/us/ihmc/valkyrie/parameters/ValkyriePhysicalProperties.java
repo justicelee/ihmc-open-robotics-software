@@ -9,11 +9,16 @@ public class ValkyriePhysicalProperties
 {
    private static final double defaultFootsizeReduction = 0.01;
 
+   private static final double actualFootLength = 0.25;
+   private static final double actualFootBack = 0.073;
+   private static final double actualFootForward = actualFootLength - actualFootBack;
+   private static final double actualFootWidth = 0.15;
+
    private static final double defaultAnkleHeight = 0.09; // Should be 0.075 + 0.015 (sole thickness)
-   private static final double defaultFootLength = 0.25 - defaultFootsizeReduction;
-   private static final double defaultFootBack = 0.073 - defaultFootsizeReduction / 2.0;
+   private static final double defaultFootLength = actualFootLength - defaultFootsizeReduction;
+   private static final double defaultFootBack = actualFootBack - defaultFootsizeReduction / 2.0;
    private static final double defaultFootForward = defaultFootLength - defaultFootBack;
-   private static final double defaultFootWidth = 0.15 - defaultFootsizeReduction;
+   private static final double defaultFootWidth = actualFootWidth - defaultFootsizeReduction;
 
    private static final double defaultThighLength = 0.431;
    private static final double defaultShinLength = 0.406;
@@ -118,6 +123,26 @@ public class ValkyriePhysicalProperties
    public double getLegLength()
    {
       return thighLength + shinLength;
+   }
+
+   public static double getActualFootLength()
+   {
+      return actualFootLength;
+   }
+
+   public static double getActualFootBack()
+   {
+      return actualFootBack;
+   }
+
+   public static double getActualFootForward()
+   {
+      return actualFootForward;
+   }
+
+   public static double getActualFootWidth()
+   {
+      return actualFootWidth;
    }
 
    public SideDependentList<RigidBodyTransform> getSoleToAnkleFrameTransforms()

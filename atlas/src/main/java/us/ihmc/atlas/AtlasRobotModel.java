@@ -26,6 +26,7 @@ import us.ihmc.commonWalkingControlModules.configurations.ICPWithTimeFreezingPla
 import us.ihmc.commonWalkingControlModules.configurations.WalkingControllerParameters;
 import us.ihmc.commons.Conversions;
 import us.ihmc.communication.ROS2Tools;
+import us.ihmc.euclid.geometry.ConvexPolygon2D;
 import us.ihmc.euclid.matrix.Matrix3D;
 import us.ihmc.euclid.transform.RigidBodyTransform;
 import us.ihmc.footstepPlanning.graphSearch.parameters.FootstepPlannerParametersBasics;
@@ -60,6 +61,7 @@ import us.ihmc.robotics.physics.CollidableHelper;
 import us.ihmc.robotics.physics.RobotCollisionModel;
 import us.ihmc.robotics.robotDescription.RobotDescription;
 import us.ihmc.robotics.robotSide.RobotSide;
+import us.ihmc.robotics.robotSide.SideDependentList;
 import us.ihmc.robotiq.model.RobotiqHandModel;
 import us.ihmc.robotiq.simulatedHand.SimulatedRobotiqHandsController;
 import us.ihmc.ros2.RealtimeROS2Node;
@@ -856,6 +858,30 @@ public class AtlasRobotModel implements DRCRobotModel, SDFDescriptionMutator
    public SplitFractionCalculatorParametersBasics getSplitFractionCalculatorParameters()
    {
       return new AtlasSplitFractionCalculatorParameters();
+   }
+
+   @Override
+   public SideDependentList<ConvexPolygon2D> getFootPolygonsForPlanning()
+   {
+      return new SideDependentList<>(side ->
+                                     {
+                                        ConvexPolygon2D footPolygon = new ConvexPolygon2D();
+
+                                        double footLength = atlasPhysicalProperties.getActualFootLength();
+                                        double footWidth = atlasPhysicalProperties.getActualFootWidth();
+                                        double toeWidth = atlasPhysicalProperties.getToeWidthForControl();
+                                        double footStartToeTaperFromBack = atlasPhysicalProperties.getFootStartToeTaperFromBack();
+
+                                        footPolygon.addVertex(-0.5 * footLength, -0.5 * footWidth);
+                                        footPolygon.addVertex(-0.5 * footLength, 0.5 * footWidth);
+                                        footPolygon.addVertex(footStartToeTaperFromBack - 0.5 * footLength, -0.5 * footWidth);
+                                        footPolygon.addVertex(footStartToeTaperFromBack - 0.5 * footLength, 0.5 * footWidth);
+                                        footPolygon.addVertex(0.5 * footLength, -0.5 * toeWidth);
+                                        footPolygon.addVertex(0.5 * footLength, 0.5 * toeWidth);
+
+                                        footPolygon.update();
+                                        return footPolygon;
+                                     });
    }
 
    @Override

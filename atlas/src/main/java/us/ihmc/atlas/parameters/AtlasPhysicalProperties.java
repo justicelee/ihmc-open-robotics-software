@@ -22,7 +22,7 @@ public class AtlasPhysicalProperties implements RobotPhysicalProperties
    private final double footBackForControl;
    private final double actualFootWidth;
    private final double actualFootLength;
-   private final double footStartToetaperFromBack;
+   private final double footStartToeTaperFromBack;
    private final double footForwardForControl; // 0.16;   //0.178;    // 0.18;
    private final double shinLength;
    private final double thighLength;
@@ -61,7 +61,7 @@ public class AtlasPhysicalProperties implements RobotPhysicalProperties
       footBackForControl = modelScale * 0.085; // 0.09; // 0.06;   //0.082;    // 0.07;
       actualFootWidth = footWidthScale * 0.138;
       actualFootLength = modelScale * 0.26;
-      footStartToetaperFromBack = modelScale * 0.195;
+      footStartToeTaperFromBack = modelScale * 0.195;
       footForwardForControl = footLengthForControl - footBackForControl; // 0.16;   //0.178;    // 0.18;
       shinLength = modelScale * 0.374;
       thighLength = modelScale * 0.422;
@@ -160,4 +160,8 @@ public class AtlasPhysicalProperties implements RobotPhysicalProperties
       this.massScalePower = massScalePower;
    }
 
+   public double getFootStartToeTaperFromBack()
+   {
+      return footStartToeTaperFromBack;
+   }
 }
