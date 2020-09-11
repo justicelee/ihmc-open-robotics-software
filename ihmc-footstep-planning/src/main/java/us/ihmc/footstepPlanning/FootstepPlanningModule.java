@@ -8,6 +8,7 @@ import us.ihmc.euclid.geometry.ConvexPolygon2D;
 import us.ihmc.euclid.geometry.Pose3D;
 import us.ihmc.euclid.geometry.interfaces.Pose3DReadOnly;
 import us.ihmc.euclid.referenceFrame.FramePose3D;
+import us.ihmc.euclid.tuple2D.Point2D;
 import us.ihmc.footstepPlanning.graphSearch.AStarIterationData;
 import us.ihmc.footstepPlanning.graphSearch.VisibilityGraphPathPlanner;
 import us.ihmc.footstepPlanning.graphSearch.footstepSnapping.FootstepNodeSnapAndWiggler;
@@ -60,6 +61,7 @@ public class FootstepPlanningModule implements CloseableAndDisposable
    private ROS2Node ros2Node;
    private final VisibilityGraphsParametersBasics visibilityGraphParameters;
    private final FootstepPlannerParametersBasics footstepPlannerParameters;
+   private final SideDependentList<ConvexPolygon2D> controllerFootPolygons;
 
    private final VisibilityGraphPathPlanner bodyPathPlanner;
    private final WaypointDefinedBodyPathPlanHolder bodyPathPlanHolder = new WaypointDefinedBodyPathPlanHolder();
@@ -89,7 +91,8 @@ public class FootstepPlanningModule implements CloseableAndDisposable
            new DefaultSwingPlannerParameters(),
            new DefaultSplitFractionCalculatorParameters(),
            null,
-           PlannerTools.createDefaultFootPolygons());
+           PlannerTools.createDefaultFootPolygons(),
+           null);
    }
 
    public FootstepPlanningModule(String name,
@@ -98,30 +101,33 @@ public class FootstepPlanningModule implements CloseableAndDisposable
                                  SwingPlannerParametersBasics swingPlannerParameters,
                                  SplitFractionCalculatorParametersBasics splitFractionParameters,
                                  WalkingControllerParameters walkingControllerParameters,
-                                 SideDependentList<ConvexPolygon2D> footPolygons)
+                                 SideDependentList<ConvexPolygon2D> plannerFootPolygons,
+                                 SideDependentList<ConvexPolygon2D> controllerFootPolygons)
    {
       this.name = name;
       this.visibilityGraphParameters = visibilityGraphParameters;
       this.footstepPlannerParameters = footstepPlannerParameters;
+      this.controllerFootPolygons = controllerFootPolygons;
 
       BodyPathPostProcessor pathPostProcessor = new ObstacleAvoidanceProcessor(visibilityGraphParameters);
       this.bodyPathPlanner = new VisibilityGraphPathPlanner(visibilityGraphParameters,
                                                             pathPostProcessor,
                                                             registry);
 
-      this.planThenSnapPlanner = new PlanThenSnapPlanner(footstepPlannerParameters, footPolygons);
-      this.aStarFootstepPlanner = new AStarFootstepPlanner(footstepPlannerParameters, footPolygons, bodyPathPlanHolder);
+      this.planThenSnapPlanner = new PlanThenSnapPlanner(footstepPlannerParameters, plannerFootPolygons);
+      this.aStarFootstepPlanner = new AStarFootstepPlanner(footstepPlannerParameters, plannerFootPolygons, bodyPathPlanHolder);
       this.postProcessHandler = new FootstepPlanPostProcessHandler(footstepPlannerParameters,
                                                                    swingPlannerParameters,
                                                                    splitFractionParameters,
                                                                    walkingControllerParameters,
-                                                                   footPolygons);
+                                                                   plannerFootPolygons);
       registry.addChild(postProcessHandler.getYoVariableRegistry());
       aStarFootstepPlanner.setPostProcessorCallback(output -> postProcessHandler.handleRequest(output.getKey(), output.getValue()));
       this.variableDescriptors = collectVariableDescriptors(aStarFootstepPlanner.getRegistry());
 
       addStatusCallback(output -> output.getPlannerTimings().setTimePlanningStepsSeconds(stopwatch.lapElapsed()));
       addStatusCallback(output -> output.getPlannerTimings().setTotalElapsedSeconds(stopwatch.totalElapsed()));
+      addStatusCallback(this::constrainToControllerFootPolygons);
    }
 
    public FootstepPlannerOutput handleRequest(FootstepPlannerRequest request)
@@ -397,6 +403,40 @@ public class FootstepPlanningModule implements CloseableAndDisposable
    public List<VariableDescriptor> getVariableDescriptors()
    {
       return variableDescriptors;
+   }
+
+   private void constrainToControllerFootPolygons(FootstepPlannerOutput footstepPlannerOutput)
+   {
+      if (controllerFootPolygons == null)
+      {
+         return;
+      }
+
+      FootstepPlan footstepPlan = footstepPlannerOutput.getFootstepPlan();
+      for (int i = 0; i < footstepPlan.getNumberOfSteps(); i++)
+      {
+         PlannedFootstep plannedFootstep = footstepPlan.getFootstep(i);
+         ConvexPolygon2D plannedFoothold = plannedFootstep.getFoothold();
+         ConvexPolygon2D controllerMaximumFoothold = controllerFootPolygons.get(plannedFootstep.getRobotSide());
+         ConvexPolygon2D constrainedPlannedFoothold = new ConvexPolygon2D();
+
+         for (int j = 0; j < controllerMaximumFoothold.getNumberOfVertices(); j++)
+         {
+            if (plannedFoothold.isPointInside(controllerMaximumFoothold.getVertex(j)))
+            {
+               constrainedPlannedFoothold.addVertex(controllerMaximumFoothold.getVertex(j));
+            }
+            else
+            {
+               Point2D projectedVertex = new Point2D();
+               controllerMaximumFoothold.orthogonalProjection(controllerMaximumFoothold.getVertex(j), projectedVertex);
+               constrainedPlannedFoothold.addVertex(projectedVertex);
+            }
+         }
+
+         constrainedPlannedFoothold.update();
+         plannedFoothold.set(constrainedPlannedFoothold);
+      }
    }
 
    private static List<VariableDescriptor> collectVariableDescriptors(YoRegistry registry)

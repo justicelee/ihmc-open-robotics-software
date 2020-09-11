@@ -51,9 +51,10 @@ public class FootstepPlanningModuleLauncher
       VisibilityGraphsParametersBasics visibilityGraphsParameters = robotModel.getVisibilityGraphsParameters();
       SwingPlannerParametersBasics swingPlannerParameters = robotModel.getSwingPlannerParameters();
       SplitFractionCalculatorParametersBasics splitFractionParameters = robotModel.getSplitFractionCalculatorParameters();
+      SideDependentList<ConvexPolygon2D> plannerFootPolygons = robotModel.getFootPolygonsForPlanning();
 
       WalkingControllerParameters walkingControllerParameters = robotModel.getWalkingControllerParameters();
-      SideDependentList<ConvexPolygon2D> footPolygons = createFootPolygons(robotModel);
+      SideDependentList<ConvexPolygon2D> controllerFootPolygons = createFootPolygons(robotModel);
 
       return new FootstepPlanningModule(moduleName,
                                         visibilityGraphsParameters,
@@ -61,7 +62,8 @@ public class FootstepPlanningModuleLauncher
                                         swingPlannerParameters,
                                         splitFractionParameters,
                                         walkingControllerParameters,
-                                        footPolygons);
+                                        plannerFootPolygons,
+                                        controllerFootPolygons);
    }
 
    /**
