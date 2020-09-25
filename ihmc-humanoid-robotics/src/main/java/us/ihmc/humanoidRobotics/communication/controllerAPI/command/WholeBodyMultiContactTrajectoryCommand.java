@@ -7,7 +7,8 @@ import us.ihmc.euclid.geometry.Pose3D;
 import us.ihmc.euclid.interfaces.EpsilonComparable;
 import us.ihmc.euclid.tools.EuclidCoreTools;
 
-public class WholeBodyPoseTrajectoryCommand implements Command<WholeBodyPoseTrajectoryCommand, WholeBodyPoseTrajectoryMessage>, EpsilonComparable<WholeBodyPoseTrajectoryCommand>
+public class WholeBodyMultiContactTrajectoryCommand
+      implements Command<WholeBodyMultiContactTrajectoryCommand, WholeBodyPoseTrajectoryMessage>, EpsilonComparable<WholeBodyMultiContactTrajectoryCommand>
 {
    private long sequenceId;
    private double trajectoryDuration;
@@ -70,7 +71,7 @@ public class WholeBodyPoseTrajectoryCommand implements Command<WholeBodyPoseTraj
    }
 
    @Override
-   public boolean epsilonEquals(WholeBodyPoseTrajectoryCommand other, double epsilon)
+   public boolean epsilonEquals(WholeBodyMultiContactTrajectoryCommand other, double epsilon)
    {
       if (!EuclidCoreTools.epsilonEquals(trajectoryDuration, other.trajectoryDuration, epsilon))
       {
@@ -97,7 +98,7 @@ public class WholeBodyPoseTrajectoryCommand implements Command<WholeBodyPoseTraj
    }
 
    @Override
-   public void set(WholeBodyPoseTrajectoryCommand other)
+   public void set(WholeBodyMultiContactTrajectoryCommand other)
    {
       this.sequenceId = other.sequenceId;
       this.trajectoryDuration = other.trajectoryDuration;
